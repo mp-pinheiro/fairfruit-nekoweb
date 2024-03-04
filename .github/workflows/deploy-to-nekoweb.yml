@@ -17,10 +17,12 @@ jobs:
         run: zip -r project.zip .
 
       - name: Upload CSS
-        run: curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/css" -F "isFolder=true" https://nekoweb.org/api/files/create
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/css" -F "isFolder=true" https://nekoweb.org/api/files/create
       
       - name: Upload elements.css
-        run: curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/css/elements.css" -F "file=@css/elements.css" https://nekoweb.org/api/files/upload
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/css/elements.css" -F "file=@css/elements.css" https://nekoweb.org/api/files/upload
 
       - name: Upload Images
         run: |
@@ -29,9 +31,11 @@ jobs:
           curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/img/logo.png" -F "file=@img/logo.png" https://nekoweb.org/api/files/upload
 
       - name: Upload index.html
-        run: curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/index.html" -F "file=@index.html" https://nekoweb.org/api/files/upload
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/index.html" -F "file=@index.html" https://nekoweb.org/api/files/upload
 
       - name: Upload JS
         run: |
           curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/js" -F "isFolder=true" https://nekoweb.org/api/files/create
           curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/js/snowfall.js" -F "file=@js/snowfall.js" https://nekoweb.org/api/files/upload
+          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/js/apple.js" -F "file=@js/apple.js" https://nekoweb.org/api/files/upload
