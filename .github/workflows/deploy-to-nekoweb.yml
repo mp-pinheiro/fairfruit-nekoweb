@@ -1,4 +1,4 @@
-name: Deploy to Nekoweb API
+name: Build and Deploy to Nekoweb
 
 on:
   push:
@@ -6,36 +6,47 @@ on:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      
-      - name: Zip the project files
-        run: zip -r project.zip .
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Upload CSS
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/css" -F "isFolder=true" https://nekoweb.org/api/files/create
-      
-      - name: Upload elements.css
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/css/elements.css" -F "file=@css/elements.css" https://nekoweb.org/api/files/upload
+    - name: Install NVM
+      run: |
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 
-      - name: Upload Images
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/img" -F "isFolder=true" https://nekoweb.org/api/files/create
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/img/icon.png" -F "file=@img/icon.png" https://nekoweb.org/api/files/upload
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/img/logo.png" -F "file=@img/logo.png" https://nekoweb.org/api/files/upload
+    - name: Install Node.js and build
+      run: |
+        chmod +x ./build.sh
+        ./build.sh
 
-      - name: Upload index.html
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/index.html" -F "file=@index.html" https://nekoweb.org/api/files/upload
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build
+        path: ./build
 
-      - name: Upload JS
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/js" -F "isFolder=true" https://nekoweb.org/api/files/create
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/js/snowfall.js" -F "file=@js/snowfall.js" https://nekoweb.org/api/files/upload
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" -F "pathname=/js/apple.js" -F "file=@js/apple.js" https://nekoweb.org/api/files/upload
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: build
+        path: ./build
+
+    - name: FTP Deploy
+      uses: SamKirkland/FTP-Deploy-Action@4.0.0
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /yfrit.com/
+        local-dir: ./build/
