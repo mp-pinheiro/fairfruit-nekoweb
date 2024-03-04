@@ -2,45 +2,72 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>Fairfruit</title>
-  <link rel="icon" href="img/icon.png" type="image/x-icon" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:700&display=swap" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" />
-  <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Fairfruit</title>
+    <link rel="stylesheet" href="css/elements.css">
+    <link rel="icon" href="img/icon.png" type="image/png">
 </head>
 
 <body>
-  <br /><br />
-  <img class="logo" src="img/logo.png" alt="logo" />
+    <div id="snowfall"></div>
+    <div class="container">
+        <header>
+            <img class="logo" src="img/logo.png" alt="Fairfruit Logo">
+            <h1>Welcome to Fairfruit</h1>
+        </header>
 
-  <h1>Fairfruit</h1>
+        <hr>
 
-  <div class="links links_second">
-    <a class="links links_second" href="https://www.youtube.com/channel/UCGrIIgP90v2OmXK1ulpUX0g"
-      target="_blank">Youtube
-    </a>
-  </div>
-  <div class="links links_third">
-    <a class="links links_third" href="https://twitch.tv/fairfruit" target="_blank">Twitch </a>
-  </div>
+        <section class="introduction">
+            <p>I make games, bad code and dumb tweets. You should play my games though, they're pretty cool.</p>
+        </section>
 
-  <h2>Follow me on</h2>
-  <br />
+        <br>
 
-  <div class="channels">
-    <a class="channels_item" href="https://discord.gg/hcVr3kpE7K" target="_blank">
-      <i class="ri-discord-line ri-3x"></i>
-    </a>
-    <a class="channels_item" href="https://twitter.com/fairfruit" target="_blank">
-      <i class="ri-twitter-line ri-3x"></i>
-    </a>
-    <a class="channels_item" href="https://github.com/mp-pinheiro/" target="_blank">
-      <i class="ri-github-line ri-3x"></i>
-    </a>
-  </div>
+        <section class="content">
+            <h2>Check Out My Games</h2>
+            <div class="link-container">
+                <a class="links links_second" href="https://store.steampowered.com/app/752600/Dual_Snake/"
+                    target="_blank">Dual Snake</a>
+                <div class="iframe-popup dual-snake">
+                    <iframe src="https://store.steampowered.com/widget/752600/" frameborder="0" width="646"
+                        height="190"></iframe>
+                </div>
+            </div>
+
+            <div class="link-container">
+                <a class="links links_third" href="https://store.steampowered.com/app/1397130/Primateria/"
+                    target="_blank">Primateria</a>
+                <div class="iframe-popup primateria">
+                    <iframe src="https://store.steampowered.com/widget/1397130/" frameborder="0" width="646"
+                        height="190"></iframe>
+                </div>
+            </div>
+
+
+            <div class="channels">
+                <a class="channels_item" href="https://www.youtube.com/channel/UCGrIIgP90v2OmXK1ulpUX0g"
+                    target="_blank"><i class="fa fa-youtube"></i></a>
+                <a class="channels_item" href="https://twitch.tv/fairfruit" target="_blank"><i
+                        class="fa fa-twitch"></i></a>
+                <a class="channels_item" href="https://discord.gg/hcVr3kpE7K" target="_blank"><i
+                        class="fa-brands fa-discord"></i></a>
+                <a class="channels_item" href="https://twitter.com/fairfruit" target="_blank"><i
+                        class="fa fa-twitter"></i></a>
+                <a class="channels_item" href="https://github.com/mp-pinheiro/" target="_blank"><i
+                        class="fa fa-github"></i></a>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2024 Fairfruit. All rights reserved.</p>
+    </footer>
+
+    <script src="https://kit.fontawesome.com/450bb4e73b.js" crossorigin="anonymous"></script>
+    <script src="js/snowfall.js"></script>
+    <script src="js/apples.js"></script>
 </body>
 
 </html>
