@@ -1,7 +1,5 @@
 .site-box {
     text-align: center;
-    background-image: url(https://fairfruit.nekoweb.org/img/sitebox-bg.png);
-    background-repeat: no-repeat;
     color: #fff8bf;
     font-size: 12px;
 }
@@ -19,6 +17,6 @@
     content: url(https://fairfruit.nekoweb.org/img/sitebox-fg.png);
     display: block;
     position: relative;
-    bottom: 149px;
-    right: -112px;
+    bottom: 169px;
+    right: -72px;
 }
