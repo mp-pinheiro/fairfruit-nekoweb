@@ -35,7 +35,6 @@ body {
     text-align: center;
     letter-spacing: 0.1em;
     overflow-x: hidden;
-    overflow-block: hidden;
 }
 
 body::after {
