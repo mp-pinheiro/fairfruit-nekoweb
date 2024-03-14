@@ -1,0 +1,27 @@
+{
+  "name": "fairfruit-tv",
+  "version": "1.0.0",
+  "description": "Once my linkfree repository, now my nekoweb repository.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --watch . --exec http-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mp-pinheiro/fairfruit-nekoweb.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mp-pinheiro/fairfruit-nekoweb/issues"
+  },
+  "homepage": "https://github.com/mp-pinheiro/fairfruit-nekoweb#readme",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "nodemon": "^3.1.0"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}
