@@ -3,7 +3,7 @@ name: Build and Deploy to Nekoweb
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   build:
@@ -42,12 +42,12 @@ jobs:
         name: build
         path: ./build
 
-    - name: FTP Deploy
-      uses: SamKirkland/FTP-Deploy-Action@4.0.0
+    - name: Deploy to Nekoweb
+      uses: mp-pinheiro/nekoweb-deploy@0.2.2
       with:
-        server: ${{ secrets.FTP_SERVER }}
-        port: ${{ secrets.FTP_PORT }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /
-        local-dir: ./build/
+        API_KEY: ${{ secrets.NEKOWEB_API_KEY }}
+        BUILD_DIR: './build'
+        DEPLOY_DIR: '/'
+        CLEANUP: 'False'
+        NEKOWEB_PAGENAME: 'fairfruit'
+        ENCRYPTION_KEY: ${{ secrets.NEKOWEB_ENCRYPTION_KEY }}
