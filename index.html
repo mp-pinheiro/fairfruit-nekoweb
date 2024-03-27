@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3"></script>
     <script src="https://kit.fontawesome.com/450bb4e73b.js" crossorigin="anonymous"></script>
     <script src="js/main.js"></script>
+    <script src="js/colormode.js"></script>
 </head>
 
 <body>
@@ -21,9 +22,9 @@
         <div class="container">
             <nav>
                 <ul id="navList">
-                    <li><a href="#me"><i class="fa-solid fa-apple-whole"></i> Me</a></li>
-                    <li><a href="#games"><i class="fa-solid fa-gamepad"></i> Games</a></li>
-                    <li><a href="#projects"><i class="fa-solid fa-tablet"></i> Projects</a></li>
+                    <li><a href="#" data-target="me"><i class="fa-solid fa-apple-whole"></i> Me</a></li>
+                    <li><a href="#" data-target="games"><i class="fa-solid fa-gamepad"></i> Games</a></li>
+                    <li><a href="#" data-target="projects"><i class="fa-solid fa-tablet"></i> Projects</a></li>
                 </ul>
             </nav>
             <button id="modeSwitch" class="modeSwitch" onclick="toggleMode()">
@@ -33,7 +34,7 @@
 
     <div class="container">
         <div class="main-content">
-            <section id="me" class="content">
+            <section data-content="me" class="content">
                 <h2>About Me</h2>
                 <section class="introduction">
                     <p>Hi! I'm Fairfruit.</p>
@@ -45,7 +46,7 @@
                 </section>
             </section>
 
-            <section id="games" class="content">
+            <section data-content="games" class="content">
                 <h2>Check Out My Games</h2>
                 <p>
                     I am very passionate about making games that evoke a feeling of "this is something I've never seen
@@ -77,7 +78,7 @@
                 </div>
             </section>
 
-            <section id="projects" class="content">
+            <section data-content="projects" class="content">
                 <h2>Projects</h2>
                 <div class="project">
                     <div class="header">
@@ -94,7 +95,7 @@
                     </div>
                     <div class="text">
                         <p>A Github Action that integrates with Nekoweb and deploys your website with a single push to
-                            the main branch. Allows git integration for free users</p>
+                            the main branch. Allows git integration for free users.</p>
                     </div>
                     <a class="link" href="https://github.com/mp-pinheiro/nekoweb-deploy"
                         target="_blank">github.com/mp-pinheiro/nekoweb-deploy</a>

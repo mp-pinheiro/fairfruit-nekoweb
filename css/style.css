@@ -143,7 +143,20 @@ a {
     padding: 20px;
     margin: 20px;
     border: 1px solid var(--color-primary);
-    max-width: 800px;
+}
+
+.riderquest {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.riderquest .game {
+    width: 1300px;
+    height: 740px;
+    border: 1px solid black;
 }
 
 .main-content h1,
