@@ -1,11 +1,14 @@
-// navbar and links setup
 function setupNav() {
     var menuLinks = document.querySelectorAll('#navList li a');
     var contents = document.querySelectorAll('.content');
 
-    function setActiveLink(href) {
+    function setActiveLink(dataTarget) {
         menuLinks.forEach(function (link) {
-            link.classList.toggle('active', link.getAttribute('href') === href);
+            const isActive = link.dataset.target === dataTarget;
+            link.classList.toggle('active', isActive);
+            if (isActive) {
+                localStorage.setItem("activeLink", dataTarget);
+            }
         });
     }
 
@@ -37,9 +40,10 @@ function setupNav() {
         }
     }
 
-    function showContent(targetId) {
+    function showContent(targetData) {
         contents.forEach(function (content) {
-            animateContent(content, content.id === targetId);
+            const shouldShow = content.dataset.content === targetData;
+            animateContent(content, shouldShow);
         });
     }
 
@@ -47,57 +51,28 @@ function setupNav() {
         links.forEach(function (link) {
             link.addEventListener('click', function (e) {
                 e.preventDefault();
-                const targetId = this.getAttribute('href').substring(1);
-                setActiveLink(this.getAttribute('href'));
-                showContent(targetId);
+                const targetData = this.dataset.target;
+                setActiveLink(targetData);
+                showContent(targetData);
             });
         });
     }
 
     initializeLinkListeners(menuLinks);
-    initializeLinkListeners(document.querySelectorAll('a[href*="#"]'));
 
-    function getActiveLink() {
-        const hash = window.location.hash;
-        return hash ? document.querySelector(`a[href="${hash}"]`) : null;
-    }
-    const activeLink = getActiveLink();
+    // set active initial link
+    var activeLink = localStorage.getItem("activeLink");
     if (activeLink) {
-        setActiveLink(activeLink.getAttribute('href'));
-        showContent(activeLink.getAttribute('href').substring(1));
+        setActiveLink(activeLink);
+        showContent(activeLink);
     } else {
-        setActiveLink('#me');
-        showContent('me');
+        setActiveLink("me");
+        showContent("me");
     }
 }
 
-// dark mode setup and toggle
-function setColorMode() {
-    var theme = localStorage.getItem("theme") || "light";
-    if (theme) {
-        console.log("Setting theme to " + theme);
-        document.documentElement.setAttribute("data-theme", theme);
-        var icon = document.getElementById("modeSwitch");
-        if (theme === "dark") {
-            icon.innerHTML = "<i class='fa-solid fa-sun'></i>";
-        } else {
-            icon.innerHTML = "<i class='fa-solid fa-moon'></i>";
-        }
-    }
-}
 
-function toggleMode() {
-    var theme = localStorage.getItem("theme");
-    if (theme && theme === "dark") {
-        localStorage.setItem("theme", "light");
-    } else {
-        localStorage.setItem("theme", "dark");
-    }
-    setColorMode();
-}
-
-// setup listeners
+// event listeners
 document.addEventListener("DOMContentLoaded", function () {
     setupNav();
-    setColorMode();
 });
