@@ -3,7 +3,7 @@ name: Build and Deploy to Nekoweb
 on:
   push:
     branches:
-      - release/dev
+      - main
 
 jobs:
   build:
