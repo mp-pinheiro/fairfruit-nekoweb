@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3"></script>
     <script src="https://kit.fontawesome.com/450bb4e73b.js" crossorigin="anonymous"></script>
     <script src="js/main.js"></script>
+    <script src="js/colormode.js"></script>
 </head>
 
 <body>
@@ -21,9 +22,10 @@
         <div class="container">
             <nav>
                 <ul id="navList">
-                    <li><a href="#me"><i class="fa-solid fa-apple-whole"></i> Me</a></li>
-                    <li><a href="#games"><i class="fa-solid fa-gamepad"></i> Games</a></li>
-                    <li><a href="#projects"><i class="fa-solid fa-tablet"></i> Projects</a></li>
+                    <li><a href="#" data-target="me"><i class="fa-solid fa-apple-whole"></i> Me</a></li>
+                    <li><a href="#" data-target="games"><i class="fa-solid fa-gamepad"></i> Games</a></li>
+                    <li><a href="#" data-target="projects"><i class="fa-solid fa-tablet"></i> Projects</a></li>
+                    <li><a href="#" data-target="posts"><i class="fa-solid fa-comments"></i> Posts</a></li>
                 </ul>
             </nav>
             <button id="modeSwitch" class="modeSwitch" onclick="toggleMode()">
@@ -33,19 +35,18 @@
 
     <div class="container">
         <div class="main-content">
-            <section id="me" class="content">
+            <section data-content="me" class="content">
                 <h2>About Me</h2>
                 <section class="introduction">
                     <p>Hi! I'm Fairfruit.</p>
                     <br>
-                    <p>I make <a href="#games">games</a>, <a href="#projects">bad code</a> and <a
-                            href="https://twitter.com/fairfruit" target="_blank">dumb tweets</a>. You should play my
-                        games though,they're pretty cool.
+                    <p>I make <a href="#games">games</a>, <a href="#projects">bad code</a> and <a href="#posts">dumb
+                            tweets</a>. You should play my games though, they're pretty cool.
                     </p>
                 </section>
             </section>
 
-            <section id="games" class="content">
+            <section data-content="games" class="content">
                 <h2>Check Out My Games</h2>
                 <p>
                     I am very passionate about making games that evoke a feeling of "this is something I've never seen
@@ -77,7 +78,7 @@
                 </div>
             </section>
 
-            <section id="projects" class="content">
+            <section data-content="projects" class="content">
                 <h2>Projects</h2>
                 <div class="project">
                     <div class="header">
@@ -94,7 +95,7 @@
                     </div>
                     <div class="text">
                         <p>A Github Action that integrates with Nekoweb and deploys your website with a single push to
-                            the main branch. Allows git integration for free users</p>
+                            the main branch. Allows git integration for free users.</p>
                     </div>
                     <a class="link" href="https://github.com/mp-pinheiro/nekoweb-deploy"
                         target="_blank">github.com/mp-pinheiro/nekoweb-deploy</a>
@@ -144,8 +145,120 @@
                     <a class="link" href="https://github.com/mp-pinheiro">github.com/mp-pinheiro</a>
                 </div>
             </section>
+
+            <section data-content="posts" class="content">
+                <div class="post-main">
+                    <div class="post-main header">
+                        <div class="title">Post Title</div>
+                        <div class="post-main metadata">
+                            <div class="item date">2024-03-10</div>
+                            <div class="item origin">Blog</div>
+                        </div>
+                    </div>
+                    <div class="text">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
+                        <br>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Lorem ipsum dolor
+                            sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
+                        <br>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Lorem ipsum dolor
+                            sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
+                        <br>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Lorem ipsum dolor
+                            sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
+                        <br>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Lorem ipsum dolor
+                            sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
+                        <br>
+                        <p>Amem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Lorem ipsum dolor
+                            sit amet, consectetur adipiscing elit. Sed non risus.
+                            Suspendisse
+                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
+                        <br>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div data-content="posts" class="main-content posts-sidebar content">
+            <section data-content="posts" class="content">
+                <h2>Posts</h2>
+                <div class="post">
+                    <div class="header">
+                        <div class="title">Post Title</div>
+                    </div>
+                    <div class="text">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus...</p>
+                    </div>
+                    <div class="metadata">
+                        <div class="item date">2024-03-10</div>
+                        <div class="item origin">Blog</div>
+                    </div>
+                </div>
+                <div class="post">
+                    <div class="header">
+                        <div class="title">Post Title</div>
+                    </div>
+                    <div class="text">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus...</p>
+                    </div>
+                    <div class="metadata">
+                        <div class="item date">2024-03-10</div>
+                        <div class="item origin">Blog</div>
+                    </div>
+                </div>
+                <div class="post">
+                    <div class="header">
+                        <div class="title">Post Title</div>
+                    </div>
+                    <div class="text">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus...</p>
+                    </div>
+                    <div class="metadata">
+                        <div class="item date">2024-03-10</div>
+                        <div class="item origin">Blog</div>
+                    </div>
+                </div>
+                <div class="post">
+                    <div class="header">
+                        <div class="title">Post Title</div>
+                    </div>
+                    <div class="text">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus...</p>
+                    </div>
+                    <div class="metadata">
+                        <div class="item date">2024-03-10</div>
+                        <div class="item origin">Blog</div>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
+
+    <!-- <nav class="post-nav">
+        <a class="post-nav-item" href="#">Previous</a>
+        <a class="post-nav-item" href="#">Next</a>
+    </nav> -->
 
     <hr>
     <footer>
