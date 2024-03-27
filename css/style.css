@@ -355,6 +355,11 @@ hr {
     opacity: 1;
 }
 
+.posts-sidebar {
+    max-width: 300px;
+    overflow-y: auto;
+}
+
 .post,
 .project {
     border: 2px solid var(--color-quinary);
@@ -374,8 +379,56 @@ hr {
     margin: 10px 0;
 }
 
+.post,
 .project {
     background-color: var(--color-quaternary);
+}
+
+.post .header,
+.post-main .header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.post .metadata,
+.post-main .metadata {
+    display: flex;
+    justify-content: end;
+    text-align: right;
+    gap: 10px;
+}
+
+.post .item {
+    font-size: 12px;
+    background-color: var(--color-secondary);
+    float: right;
+    color: var(--color-quinary);
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+.post-main .item {
+    font-size: 12px;
+    background-color: var(--color-secondary);
+    float: right;
+    color: var(--color-quinary);
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+.post-main .title {
+    font-size: 32px;
+    font-weight: bold;
+    align-self: center;
+}
+
+.post-main .text {
+    font-size: 18px;
+    margin: 10px 0;
+    text-align: justify;
+    padding-top: 10px;
 }
 
 footer .external-links {
