@@ -26,7 +26,6 @@ html {
     --color-quinary: #f7a99c;
 }
 
-
 body {
     position: relative;
     background-color: var(--color-quaternary);
@@ -446,11 +445,29 @@ hr {
     padding-top: 10px;
 }
 
+.post-nav-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.post-nav-item:hover {
+    transform: scale(1.1);
+    transition: all 0.5s;
+}
+
+.post-nav-item .disabled {
+    color: gray;
+}
+
 footer .external-links {
     display: flex;
     justify-content: center;
     gap: 10px;
-    padding-bottom: 20px;
+    padding-bottom: 10px;
 }
 
 ::-webkit-scrollbar {

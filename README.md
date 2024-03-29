@@ -1,15 +1,38 @@
-# Fairfruit TV
+# create-svelte
 
-Once my linkfree repository, now my nekoweb repository.
+Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
 
-#
+## Creating a project
 
-This is **very loosely speaking** a node project. Nodemon and a simple http server are used to serve the site locally and to provide a simple way to reload the page when the source files change.
+If you're seeing this, you've probably already done this step. Congrats!
 
-You can do that by running `npm start` in the project root.
+```bash
+# create a new project in the current directory
+npm create svelte@latest
 
-The actual site is a static site, built with `build.sh` and served from the `build` directory, which is created by the build script. Deployment is done via Github Actions, which runs the build script and then pushes the result to the `mains` branch, deploying the site to Nekoweb and Fairfruit TV.
+# create a new project in my-app
+npm create svelte@latest my-app
+```
 
-# Credits
+## Developing
 
-This was once based on the [Minimal Pastel](https://github.com/MichaelBarney/LinkFree/tree/master/Templates/Minimal%20Pastel) linkfree template, but so much has changed that I'm not sure what's left of it.
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+
+```bash
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```bash
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
