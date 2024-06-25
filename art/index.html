@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote on Artsy Stuff</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="./css/art.css">
+    <link rel="icon" href="../img/icon.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3"></script>
+    <script src="https://kit.fontawesome.com/450bb4e73b.js" crossorigin="anonymous"></script>
+    <script src="../js/colormode.js"></script>
+    <script src="./js/art.js"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <header>
+        <img class="logo" src="../img/logo.png" alt="Fairfruit Logo">
+        <h1>Vote on Artsy Stuff</h1>
+        <hr>
+        <div class="container">
+            <nav>
+                <ul id="navList">
+                    <li><a id="home" href="/"><i class="fa-solid fa-apple-whole"></i> Home</a></li>
+                </ul>
+            </nav>
+            <button id="modeSwitch" class="modeSwitch" onclick="toggleMode()">
+                <i class="fa-solid fa-moon"></i>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="game-content">
+            <section>
+                <h2>Art Contest!</h2>
+                <br>
+                <p>Running an art contest for my game <a href=https://store.steampowered.com/app/1397130/Primateria/
+                        target="_blank">Primateria</a>. We had a booth on a game's con where players had the change to
+                    create custom artwork toghether with <a href="https://www.instagram.com/duckartisan/"
+                        target="_blank">artist.</a></p>
+                <br>
+                <p>Please vote on your <strong>three favorites</strong>! They'll become cards in the game.</p>
+                <br>
+                <section class="riderquest">
+                    <div id="voting-section">
+                        <div id="images" class="image-grid"></div>
+                        <form id="vote-form" action="" method="POST">
+                            <div id="turnstile-container">
+                                <div id="turnstile-widget" class="cf-turnstile" data-sitekey="0x4AAAAAAAc4b2pGmebV4_Ig"
+                                    data-callback="storeCaptchaToken"></div>
+                            </div>
+                            <button id="submit-vote" class="mt-2" type="button" data-lang-key="submit-button">Submit
+                                Vote</button>
+                        </form>
+                        <div id="result" class="mt-2"></div>
+                    </div>
+
+                    <div id="image-modal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeModal()">&times;</span>
+                            <img id="modal-image" src="" alt="Modal Image">
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </div>
+    <hr>
+    <footer>
+        <div class=" channels">
+            <a class="channels_item" href="https://www.youtube.com/channel/UCGrIIgP90v2OmXK1ulpUX0g" target="_blank"><i
+                    class="fa fa-youtube"></i></a>
+            <a class="channels_item" href="https://twitch.tv/fairfruit" target="_blank"><i class="fa fa-twitch"></i></a>
+            <a class="channels_item" href="https://discord.gg/hcVr3kpE7K" target="_blank"><i
+                    class="fa-brands fa-discord"></i></a>
+            <a class="channels_item" href="https://twitter.com/fairfruit" target="_blank"><i
+                    class="fa fa-twitter"></i></a>
+            <a class="channels_item" href="https://github.com/mp-pinheiro/" target="_blank"><i
+                    class="fa fa-github"></i></a>
+        </div>
+        <p>© 2024 Fairfruit. All rights reserved.</p>
+        <br>
+        <div class="external-links">
+            <a href="https://nekoweb.org/"><img src="https://nekoweb.org/assets/buttons/button4.gif"></a>
+            <a href="https://districts.nekoweb.org"><img src="../img/buttons/districts002.png"></a>
+            <a href="https://fairfruit.nekoweb.org"><img src="../img/buttons/button.png"></a>
+        </div>
+    </footer>
+</body>
+
+</html>
