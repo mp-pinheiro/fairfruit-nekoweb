@@ -1,9 +1,9 @@
-name: Build and Deploy to Nekoweb
+name: Build and Deploy to Nekoweb (dev)
 
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   build:
@@ -43,11 +43,12 @@ jobs:
           path: ./build
 
       - name: Deploy to Nekoweb
-        uses: mp-pinheiro/nekoweb-deploy@main
+        uses: mp-pinheiro/nekoweb-deploy@dev
         with:
           API_KEY: ${{ secrets.NEKOWEB_API_KEY }}
           BUILD_DIR: "./build"
           DEPLOY_DIR: "/"
-          CLEANUP: "False"
+          CLEANUP: "True"
           NEKOWEB_PAGENAME: "fairfruit"
           ENCRYPTION_KEY: ${{ secrets.NEKOWEB_ENCRYPTION_KEY }}
+          DEBUG: "True"
