@@ -2,14 +2,19 @@
 
 Once my linkfree repository, now my nekoweb repository.
 
-#
+## Development
 
-This project uses Bun for local development. A lightweight static file server (`dev.ts`) serves the site locally .
+This project uses [SvelteKit](https://kit.svelte.dev/) with [adapter-static](https://github.com/sveltejs/kit/tree/main/packages/adapter-static) for static site generation, and [Bun](https://bun.sh/) as the runtime and package manager.
 
-To start the dev server, run `bun start` (or `bun dev.ts`) in the project root.
+```bash
+bun install      # install dependencies
+bun run dev      # start dev server
+bun run build    # build static site to build/
+bun run preview  # preview built site
+```
 
-The actual site is a static site, built with `build.sh` and served from the `build` directory, which is created by the build script. Deployment is done via Github Actions, which runs the build script and then pushes the result to the `mains` branch, deploying the site to Nekoweb and Fairfruit TV.
+The site is deployed to [Nekoweb](https://nekoweb.org) via GitHub Actions on push to `main`.
 
-# Credits
+## Credits
 
 This was once based on the [Minimal Pastel](https://github.com/MichaelBarney/LinkFree/tree/master/Templates/Minimal%20Pastel) linkfree template, but so much has changed that I'm not sure what's left of it.

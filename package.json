@@ -2,9 +2,11 @@
   "name": "fairfruit-tv",
   "version": "1.0.0",
   "description": "Once my linkfree repository, now my nekoweb repository.",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "bun dev.ts"
+    "dev": "vite dev",
+    "build": "vite build && cp build/not_found.html build/404.html",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -18,6 +20,13 @@
   },
   "homepage": "https://github.com/mp-pinheiro/fairfruit-nekoweb#readme",
   "devDependencies": {
-    "@types/bun": "^1.3.9"
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.52.2",
+    "@types/bun": "^1.3.9",
+    "svelte": "^5.53.0",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "gsap": "^3.14.2"
   }
 }

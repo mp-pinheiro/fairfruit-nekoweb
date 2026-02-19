@@ -23,3 +23,20 @@ declare module "svelte/elements" {
 }
 
 export {};
+
+
+declare module "$app/types" {
+	export interface AppTypes {
+		RouteId(): "/" | "/riderquest";
+		RouteParams(): {
+			
+		};
+		LayoutParams(): {
+			"/": Record<string, never>;
+			"/riderquest": Record<string, never>
+		};
+		Pathname(): "/" | "/riderquest/";
+		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
+		Asset(): "/CNAME" | "/img/bg.png" | "/img/buttons/button.png" | "/img/buttons/districts002.png" | "/img/icon.png" | "/img/logo.png" | "/img/sitebox-fg.png" | "/riderquest/Build/UnityLoader.js" | "/riderquest/Build/web.data.unityweb" | "/riderquest/Build/web.json" | "/riderquest/Build/web.wasm.code.unityweb" | "/riderquest/Build/web.wasm.framework.unityweb" | "/riderquest/game.html" | "/robots.txt" | "/sitemap.xml" | string & {};
+	}
+}
