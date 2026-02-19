@@ -8,3 +8,5 @@ cp ./elements.css ./build
 cp ./index.html ./build
 cp ./404.html ./build
 cp ./404.html ./build/not_found.html
+cp ./robots.txt ./build
+cp ./sitemap.xml ./build
