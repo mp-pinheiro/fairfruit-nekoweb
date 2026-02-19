@@ -211,7 +211,7 @@
 				</div>
 				<a class="link" href="https://yfrit.com" target="_blank">yfrit.com</a>
 			</div>
-			<div class="project">
+			<div class="project" style="height: auto">
 				<div class="header">
 					<div class="title">FairFruit-Bot (Twitch Chat Plays)</div>
 				</div>

@@ -158,7 +158,7 @@ a {
 #bsky-posts-feed {
     overflow-y: auto;
     padding-right: 20px;
-    margin-right: -20px;
+    margin-right: -10px;
     flex: 1;
 }
 
