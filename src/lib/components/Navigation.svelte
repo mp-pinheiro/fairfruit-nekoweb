@@ -15,13 +15,14 @@
 		<ul id="navList">
 			{#each tabs as tab}
 				<li>
-					<a
-						href="#"
+					<button
+						type="button"
 						class:active={$activeTab === tab.id}
-						onclick={(e) => { e.preventDefault(); activeTab.setTab(tab.id); }}
+						onclick={() => activeTab.setTab(tab.id)}
+						style="background: none; border: none; padding: 0; color: inherit; text-decoration: none; font: inherit; cursor: pointer;"
 					>
 						<i class={tab.icon}></i> {tab.label}
-					</a>
+					</button>
 				</li>
 			{/each}
 		</ul>

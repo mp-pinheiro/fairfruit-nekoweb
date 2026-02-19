@@ -112,9 +112,9 @@
 				<p>Hi! I'm Fairfruit.</p>
 				<br>
 				<p>
-					I make <a href="#" onclick={(e) => { e.preventDefault(); handleTabClick('games'); }}>games</a>,
-					<a href="#" onclick={(e) => { e.preventDefault(); handleTabClick('projects'); }}>bad code</a>
-					and <a href="#" onclick={(e) => { e.preventDefault(); handleTabClick('posts'); }}>dumb tweets</a>.
+					I make <button type="button" onclick={() => handleTabClick('games')} style="background: none; border: none; padding: 0; color: var(--color-primary); text-decoration: none; font: inherit; cursor: pointer;">games</button>,
+					<button type="button" onclick={() => handleTabClick('projects')} style="background: none; border: none; padding: 0; color: var(--color-primary); text-decoration: none; font: inherit; cursor: pointer;">bad code</button>
+					and <button type="button" onclick={() => handleTabClick('posts')} style="background: none; border: none; padding: 0; color: var(--color-primary); text-decoration: none; font: inherit; cursor: pointer;">dumb tweets</button>.
 					You should play my games though, they're pretty cool.
 				</p>
 			</section>
@@ -139,14 +139,14 @@
 				<div class="link-container">
 					<a class="links links-red" href="https://store.steampowered.com/app/752600/Dual_Snake/" target="_blank">Dual Snake</a>
 					<div class="iframe-popup dual-snake">
-						<iframe src="https://store.steampowered.com/widget/752600/" frameborder="0" width="646" height="190"></iframe>
+						<iframe src="https://store.steampowered.com/widget/752600/" frameborder="0" width="646" height="190" title="Steam store widget for Dual Snake"></iframe>
 					</div>
 				</div>
 
 				<div class="link-container">
 					<a class="links links-purple" href="https://store.steampowered.com/app/1397130/Primateria/" target="_blank">Primateria</a>
 					<div class="iframe-popup primateria">
-						<iframe src="https://store.steampowered.com/widget/1397130/" frameborder="0" width="646" height="190"></iframe>
+						<iframe src="https://store.steampowered.com/widget/1397130/" frameborder="0" width="646" height="190" title="Steam store widget for Primateria"></iframe>
 					</div>
 				</div>
 			</div>
@@ -207,7 +207,7 @@
 					<div class="title">Yfrit Games</div>
 				</div>
 				<div class="text">
-					<p>My indie game studio where I make <a href="#" onclick={(e) => { e.preventDefault(); handleTabClick('games'); }}>games</a> and stuff.</p>
+					<p>My indie game studio where I make <button type="button" onclick={() => handleTabClick('games')} style="background: none; border: none; padding: 0; color: var(--color-primary); text-decoration: none; font: inherit; cursor: pointer;">games</button> and stuff.</p>
 				</div>
 				<a class="link" href="https://yfrit.com" target="_blank">yfrit.com</a>
 			</div>
@@ -243,6 +243,7 @@
 				<div class="text">
 					<p>My Github profile with a bunch of other silly projects and contributions, including <a
 							href="https://github.com/mp-pinheiro/fairfruit-nekoweb">this website</a>.
+					</p>
 				</div>
 				<a class="link" href="https://github.com/mp-pinheiro">github.com/mp-pinheiro</a>
 			</div>
@@ -313,15 +314,11 @@
 				{/if}
 			</div>
 			<div class="pagination-controls" style="text-align: center; margin: 20px 0;">
-				{#if hasPrev}
-					<button onclick={prevPage} style="margin-right: 10px;">Prev</button>
-				{/if}
+				<button onclick={prevPage} disabled={!hasPrev} style="margin-right: 10px;">Prev</button>
 				{#if allPosts.length > 0}
 					<span id="page-info">{currentPage + 1} / {totalPages}</span>
 				{/if}
-				{#if hasNext}
-					<button onclick={nextPage} style="margin-left: 10px;">Next</button>
-				{/if}
+				<button onclick={nextPage} disabled={!hasNext} style="margin-left: 10px;">Next</button>
 			</div>
 		</section>
 	</div>
