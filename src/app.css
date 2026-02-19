@@ -635,6 +635,11 @@ footer .external-links {
     background-color: var(--color-primary);
 }
 
+.pagination-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 #page-info {
     color: var(--color-quinary);
     font-size: 12px;

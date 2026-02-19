@@ -1,10 +1,10 @@
 <footer>
 	<div class="channels">
-		<a class="channels_item" href="https://www.youtube.com/channel/UCGrIIgP90v2OmXK1ulpUX0g" target="_blank"><i class="fa fa-youtube"></i></a>
-		<a class="channels_item" href="https://twitch.tv/fairfruit" target="_blank"><i class="fa fa-twitch"></i></a>
-		<a class="channels_item" href="https://discord.gg/hcVr3kpE7K" target="_blank"><i class="fa-brands fa-discord"></i></a>
-		<a class="channels_item" href="https://fairfruit.yfrit.social" target="_blank"><i class="fa-brands fa-bluesky"></i></a>
-		<a class="channels_item" href="https://github.com/mp-pinheiro/" target="_blank"><i class="fa fa-github"></i></a>
+		<a class="channels_item" href="https://www.youtube.com/channel/UCGrIIgP90v2OmXK1ulpUX0g" target="_blank" aria-label="Fairfruit's YouTube channel"><i class="fa fa-youtube"></i></a>
+		<a class="channels_item" href="https://twitch.tv/fairfruit" target="_blank" aria-label="Fairfruit's Twitch channel"><i class="fa fa-twitch"></i></a>
+		<a class="channels_item" href="https://discord.gg/hcVr3kpE7K" target="_blank" aria-label="Fairfruit's Discord server"><i class="fa-brands fa-discord"></i></a>
+		<a class="channels_item" href="https://fairfruit.yfrit.social" target="_blank" aria-label="Fairfruit's Bluesky profile"><i class="fa-brands fa-bluesky"></i></a>
+		<a class="channels_item" href="https://github.com/mp-pinheiro/" target="_blank" aria-label="Fairfruit's GitHub profile"><i class="fa fa-github"></i></a>
 	</div>
 	<p>© 2024 Fairfruit. All rights reserved.</p>
 	<br>
