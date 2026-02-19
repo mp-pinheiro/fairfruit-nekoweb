@@ -58,7 +58,8 @@ function setupNav() {
         });
     }
 
-    initializeLinkListeners(menuLinks);
+    var allTargetLinks = document.querySelectorAll('[data-target]');
+    initializeLinkListeners(allTargetLinks);
 
     // set active initial link
     var activeLink = localStorage.getItem("activeLink");
