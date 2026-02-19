@@ -4,9 +4,9 @@ Once my linkfree repository, now my nekoweb repository.
 
 #
 
-This is **very loosely speaking** a node project. Nodemon and a simple http server are used to serve the site locally and to provide a simple way to reload the page when the source files change.
+This project uses Bun for local development. A lightweight static file server (`dev.ts`) serves the site locally .
 
-You can do that by running `npm start` in the project root.
+To start the dev server, run `bun start` (or `bun dev.ts`) in the project root.
 
 The actual site is a static site, built with `build.sh` and served from the `build` directory, which is created by the build script. Deployment is done via Github Actions, which runs the build script and then pushes the result to the `mains` branch, deploying the site to Nekoweb and Fairfruit TV.
 
