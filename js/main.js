@@ -14,7 +14,7 @@ function setupNav() {
 
     function animateContent(content, shouldShow) {
         if (shouldShow) {
-            content.style.display = 'initial';
+            content.style.display = 'flex';
             content.style.visibility = 'visible';
 
             gsap.to(content, {
