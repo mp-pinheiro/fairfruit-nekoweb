@@ -13,6 +13,7 @@
     <script src="https://kit.fontawesome.com/450bb4e73b.js" crossorigin="anonymous"></script>
     <script src="js/main.js"></script>
     <script src="js/colormode.js"></script>
+    <script src="js/bsky.js"></script>
 </head>
 
 <body>
@@ -98,7 +99,7 @@
                         <div class="metadata"><div class="item">Pirate Jam 2025</div></div>
                     </div>
                     <div class="text">
-                        <p>Made in a couple of days with <a href="https://pureishatsu.itch.io/" target="_blank">Pureishatsu</a>. We picked Pirate Jam 2025 (the biggest around) as an excuse to practice 3D. Theme: "You Are The Weapon": you're a war machine managing humanity's last survivors before the storm.</p>
+                        <p>Made in a couple of days with <a href="https://bsky.app/profile/pureishatsu.bsky.social/" target="_blank">Pureishatsu</a>. We picked a large jam that fit our schedules as an excuse to practice 3D. Theme: "You Are The Weapon": you're a war machine managing humanity's last survivors before the storm.</p>
                     </div>
                     <a class="link" href="https://fairfruit.itch.io/the-storm-always-comes" target="_blank">Play it on itch.io</a>
                 </div>
@@ -173,118 +174,21 @@
             </section>
 
             <section data-content="posts" class="content">
-                <div class="post-main">
-                    <div class="post-main header">
-                        <div class="title">Post Title</div>
-                        <div class="post-main metadata">
-                            <div class="item date">2024-03-10</div>
-                            <div class="item origin">Blog</div>
-                        </div>
-                    </div>
-                    <div class="text">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
-                        <br>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Lorem ipsum dolor
-                            sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
-                        <br>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Lorem ipsum dolor
-                            sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
-                        <br>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Lorem ipsum dolor
-                            sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
-                        <br>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Lorem ipsum dolor
-                            sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
-                        <br>
-                        <p>Amem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Lorem ipsum dolor
-                            sit amet, consectetur adipiscing elit. Sed non risus.
-                            Suspendisse
-                            lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</p>
-                        <br>
-
-                    </div>
-                </div>
+                <div id="bsky-posts-feed"></div>
             </section>
         </div>
         <div data-content="posts" class="main-content posts-sidebar content">
             <section data-content="posts" class="content">
                 <h2>Posts</h2>
-                <div class="post">
-                    <div class="header">
-                        <div class="title">Post Title</div>
-                    </div>
-                    <div class="text">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus...</p>
-                    </div>
-                    <div class="metadata">
-                        <div class="item date">2024-03-10</div>
-                        <div class="item origin">Blog</div>
-                    </div>
-                </div>
-                <div class="post">
-                    <div class="header">
-                        <div class="title">Post Title</div>
-                    </div>
-                    <div class="text">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus...</p>
-                    </div>
-                    <div class="metadata">
-                        <div class="item date">2024-03-10</div>
-                        <div class="item origin">Blog</div>
-                    </div>
-                </div>
-                <div class="post">
-                    <div class="header">
-                        <div class="title">Post Title</div>
-                    </div>
-                    <div class="text">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus...</p>
-                    </div>
-                    <div class="metadata">
-                        <div class="item date">2024-03-10</div>
-                        <div class="item origin">Blog</div>
-                    </div>
-                </div>
-                <div class="post">
-                    <div class="header">
-                        <div class="title">Post Title</div>
-                    </div>
-                    <div class="text">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus...</p>
-                    </div>
-                    <div class="metadata">
-                        <div class="item date">2024-03-10</div>
-                        <div class="item origin">Blog</div>
-                    </div>
+                <div id="bsky-posts-sidebar"></div>
+                <div class="pagination-controls" style="text-align: center; margin: 20px 0;">
+                    <button id="prev-posts" style="display: none; margin-right: 10px;">Prev</button>
+                    <span id="page-info" style="display: none;"></span>
+                    <button id="next-posts" style="display: none; margin-left: 10px;">Next</button>
                 </div>
             </section>
         </div>
     </div>
-
-    <!-- <nav class="post-nav">
-        <a class="post-nav-item" href="#">Previous</a>
-        <a class="post-nav-item" href="#">Next</a>
-    </nav> -->
 
     <hr>
     <footer>
@@ -294,8 +198,8 @@
             <a class="channels_item" href="https://twitch.tv/fairfruit" target="_blank"><i class="fa fa-twitch"></i></a>
             <a class="channels_item" href="https://discord.gg/hcVr3kpE7K" target="_blank"><i
                     class="fa-brands fa-discord"></i></a>
-            <a class="channels_item" href="https://twitter.com/fairfruit" target="_blank"><i
-                    class="fa fa-twitter"></i></a>
+            <a class="channels_item" href="https://fairfruit.yfrit.social" target="_blank"><i
+                    class="fa-brands fa-bluesky"></i></a>
             <a class="channels_item" href="https://github.com/mp-pinheiro/" target="_blank"><i
                     class="fa fa-github"></i></a>
         </div>
