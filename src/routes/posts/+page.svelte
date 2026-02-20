@@ -16,10 +16,12 @@
 	let { data } = $props();
 
 	let posts = $state([]);
+	let selectedPost = $state(null);
 	let totalCount = $state(0);
 	let currentPage = $state(0);
 	let bskyError = $state('');
 	let isLoading = $state(true);
+	let postId = $state('');
 
 	let filters = $state({
 		fromDate: '',
@@ -35,6 +37,8 @@
 
 	let showFilterDialog = $state(false);
 	let isMobileSidebarOpen = $state(false);
+
+	let view = $derived(data.view ?? 'list');
 
 	async function fetchPosts(page, newFilters) {
 		isLoading = true;
@@ -56,28 +60,45 @@
 	}
 
 	$effect(() => {
-		currentPage = data.initialPage ?? 0;
-		filters.fromDate = data.initialFilters?.fromDate ?? '';
-		filters.toDate = data.initialFilters?.toDate ?? '';
-		filters.sortOrder = data.initialFilters?.sortOrder ?? 'newest';
+		if (view === 'list') {
+			currentPage = data.initialPage ?? 0;
+			filters.fromDate = data.initialFilters?.fromDate ?? '';
+			filters.toDate = data.initialFilters?.toDate ?? '';
+			filters.sortOrder = data.initialFilters?.sortOrder ?? 'newest';
+		} else {
+			posts = data.posts ?? [];
+			selectedPost = data.selectedPost ?? null;
+			currentPage = data.currentPage ?? 0;
+			totalCount = data.totalCount ?? 0;
+			bskyError = data.error ?? '';
+			postId = data.postId ?? '';
+			if (data.filters) {
+				filters.fromDate = data.filters.fromDate;
+				filters.toDate = data.filters.toDate;
+				filters.sortOrder = data.filters.sortOrder;
+			}
+			isLoading = false;
+		}
 	});
 
 	let currentPageUrl = $derived(page.url);
 
 	$effect(() => {
-		const url = currentPageUrl;
-		const page = parseInt(url.searchParams.get('page') || '0', 10);
-		const fromDate = url.searchParams.get('from') ?? '';
-		const toDate = url.searchParams.get('to') ?? '';
-		const sortOrder = url.searchParams.get('sort') ?? 'newest';
+		if (view === 'list') {
+			const url = currentPageUrl;
+			const page = parseInt(url.searchParams.get('page') || '0', 10);
+			const fromDate = url.searchParams.get('from') ?? '';
+			const toDate = url.searchParams.get('to') ?? '';
+			const sortOrder = url.searchParams.get('sort') ?? 'newest';
 
-		fetchPosts(page, { fromDate, toDate, sortOrder });
+			fetchPosts(page, { fromDate, toDate, sortOrder });
+		}
 	});
 
 	let totalPages = $derived.by(() => Math.ceil(totalCount / SIDEBAR_POSTS_COUNT));
 	let hasPrev = $derived.by(() => currentPage > 0);
 	let hasNext = $derived.by(() => (currentPage + 1) * SIDEBAR_POSTS_COUNT < totalCount);
-	let selectedPost = $derived.by(() => posts[0] ?? null);
+	let listSelectedPost = $derived.by(() => posts[0] ?? null);
 
 	function selectPost(index) {
 		const post = posts[index];
@@ -86,12 +107,13 @@
 		const match = uri.match(/app\.bsky\.feed\.post\/([a-z0-9]+)/);
 		if (match) {
 			const params = new URLSearchParams();
+			params.set('post', match[1]);
 			params.set('page', currentPage.toString());
 			if (filters.fromDate) params.set('from', filters.fromDate);
 			if (filters.toDate) params.set('to', filters.toDate);
 			if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
 			const queryString = params.toString();
-			goto(queryString ? `/posts/post/${match[1]}?${queryString}` : `/posts/post/${match[1]}`);
+			goto(queryString ? `/posts?${queryString}` : `/posts?post=${match[1]}`);
 			if (window.innerWidth <= 1024) {
 				toggleSidebar();
 				window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -103,6 +125,9 @@
 		if (hasPrev) {
 			const newPage = currentPage - 1;
 			const params = new URLSearchParams();
+			if (view === 'single') {
+				params.set('post', postId);
+			}
 			params.set('page', newPage.toString());
 			if (filters.fromDate) params.set('from', filters.fromDate);
 			if (filters.toDate) params.set('to', filters.toDate);
@@ -116,6 +141,9 @@
 		if (hasNext) {
 			const newPage = currentPage + 1;
 			const params = new URLSearchParams();
+			if (view === 'single') {
+				params.set('post', postId);
+			}
 			params.set('page', newPage.toString());
 			if (filters.fromDate) params.set('from', filters.fromDate);
 			if (filters.toDate) params.set('to', filters.toDate);
@@ -123,6 +151,11 @@
 			const queryString = params.toString();
 			goto(queryString ? `/posts?${queryString}` : '/posts', { keepFocus: true });
 		}
+	}
+
+	function getPostId(uri) {
+		const match = uri.match(/app\.bsky\.feed\.post\/([a-z0-9]+)/);
+		return match ? match[1] : null;
 	}
 
 	function hasActiveFilters() {
@@ -134,7 +167,13 @@
 		tempFilters.toDate = '';
 		tempFilters.sortOrder = 'newest';
 		showFilterDialog = false;
-		goto('/posts');
+		if (view === 'single') {
+			const params = new URLSearchParams();
+			params.set('post', postId);
+			goto(`/posts?${params.toString()}`);
+		} else {
+			goto('/posts');
+		}
 	}
 
 	function openFilterDialog() {
@@ -152,6 +191,9 @@
 		showFilterDialog = false;
 
 		const params = new URLSearchParams();
+		if (view === 'single') {
+			params.set('post', postId);
+		}
 		if (fromDate) params.set('from', fromDate);
 		if (toDate) params.set('to', toDate);
 		if (sortOrder !== 'newest') params.set('sort', sortOrder);
@@ -181,11 +223,13 @@
 		}
 		tempFilters.sortOrder = filters.sortOrder;
 	});
+
+	let displayPost = $derived.by(() => view === 'single' ? selectedPost : listSelectedPost);
 </script>
 
 <svelte:head>
-	<title>Posts - Fairfruit</title>
-	<link rel="canonical" href="https://fairfruit.tv/posts">
+	<title>{view === 'single' && postId ? `Post - Fairfruit` : 'Posts - Fairfruit'}</title>
+	<link rel="canonical" href="https://fairfruit.tv/posts{view === 'single' && postId ? `?post=${postId}` : ''}">
 </svelte:head>
 
 <Header title="Welcome to Fairfruit" />
@@ -228,8 +272,10 @@
 							<div class="skeleton-main-item"></div>
 						</div>
 					</div>
-				{:else if selectedPost}
-					<PostMain postData={selectedPost} />
+				{:else if displayPost}
+					<PostMain postData={displayPost} />
+				{:else if view === 'single'}
+					<div class="error-message">Post not found</div>
 				{/if}
 			</div>
 		</section>
@@ -274,9 +320,11 @@
 					</div>
 				{:else}
 					{#each posts as postData, i}
+						{@const isSelected = view === 'single' && getPostId(postData.post.uri) === postId}
 						<PostSidebarItem
 							{postData}
 							index={i}
+							{isSelected}
 							onclick={selectPost}
 						/>
 					{/each}
