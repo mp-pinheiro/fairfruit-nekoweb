@@ -18,13 +18,64 @@
 	let bskyLoading = $state(false);
 	let bskyError = $state('');
 
-	let sidebarPosts = $derived(
-		allPosts.slice(currentPage * SIDEBAR_POSTS_COUNT, (currentPage + 1) * SIDEBAR_POSTS_COUNT)
+	let filters = $state({
+		fromDate: '',
+		toDate: '',
+		sortOrder: 'newest'
+	});
+
+	let tempFilters = $state({
+		fromDate: '',
+		toDate: '',
+		sortOrder: 'newest'
+	});
+
+	let showFilterDialog = $state(false);
+
+	let filteredPosts = $derived.by(() => {
+		let result = [...allPosts];
+
+		if (filters.fromDate) {
+			const fromDate = parseDateDMY(filters.fromDate);
+			if (fromDate) {
+				result = result.filter(item => {
+					const postDate = new Date(item.post.record.createdAt);
+					return postDate >= fromDate;
+				});
+			}
+		}
+
+		if (filters.toDate) {
+			const toDate = parseDateDMY(filters.toDate);
+			if (toDate) {
+				toDate.setHours(23, 59, 59);
+				result = result.filter(item => {
+					const postDate = new Date(item.post.record.createdAt);
+					return postDate <= toDate;
+				});
+			}
+		}
+
+		result.sort((a, b) => {
+			const dateA = new Date(a.post.record.createdAt);
+			const dateB = new Date(b.post.record.createdAt);
+			return filters.sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+		});
+
+		return result;
+	});
+
+	let sidebarPosts = $derived.by(() =>
+		filteredPosts.slice(currentPage * SIDEBAR_POSTS_COUNT, (currentPage + 1) * SIDEBAR_POSTS_COUNT)
 	);
-	let totalPages = $derived(Math.ceil(allPosts.length / SIDEBAR_POSTS_COUNT));
-	let hasPrev = $derived(currentPage > 0);
-	let hasNext = $derived((currentPage + 1) * SIDEBAR_POSTS_COUNT < allPosts.length);
-	let selectedPost = $derived(allPosts[currentPostIndex] ?? null);
+
+	let totalPages = $derived.by(() => Math.ceil(filteredPosts.length / SIDEBAR_POSTS_COUNT));
+	let hasPrev = $derived.by(() => currentPage > 0);
+	let hasNext = $derived.by(() => (currentPage + 1) * SIDEBAR_POSTS_COUNT < filteredPosts.length);
+	let selectedPost = $derived.by(() => {
+		if (currentPostIndex >= filteredPosts.length) return null;
+		return filteredPosts[currentPostIndex] ?? null;
+	});
 
 	let contentEls = {};
 
@@ -59,6 +110,14 @@
 		}
 	});
 
+	$effect(() => {
+		filters.fromDate;
+		filters.toDate;
+		filters.sortOrder;
+		currentPage = 0;
+		currentPostIndex = 0;
+	});
+
 	function selectPost(index) {
 		currentPostIndex = index;
 		currentPage = Math.floor(index / SIDEBAR_POSTS_COUNT);
@@ -70,6 +129,99 @@
 
 	function nextPage() {
 		if (hasNext) currentPage++;
+	}
+
+	function hasActiveFilters() {
+		return filters.fromDate !== '' || filters.toDate !== '' || filters.sortOrder !== 'newest';
+	}
+
+	function resetFilters() {
+		tempFilters.fromDate = '';
+		tempFilters.toDate = '';
+		tempFilters.sortOrder = 'newest';
+		filters.fromDate = '';
+		filters.toDate = '';
+		filters.sortOrder = 'newest';
+		showFilterDialog = false;
+	}
+
+	function openFilterDialog() {
+		tempFilters.fromDate = filters.fromDate;
+		tempFilters.toDate = filters.toDate;
+		tempFilters.sortOrder = filters.sortOrder;
+		showFilterDialog = true;
+	}
+
+	function applyFilters() {
+		filters.fromDate = tempFilters.fromDate;
+		filters.toDate = tempFilters.toDate;
+		filters.sortOrder = tempFilters.sortOrder;
+		showFilterDialog = false;
+	}
+
+	function handleDateInput(event, field) {
+		let input = event.target;
+		let value = input.value.replace(/\D/g, '');
+
+		if (value.length > 8) {
+			value = value.slice(0, 8);
+		}
+
+		if (value.length >= 2) {
+			const day = parseInt(value.slice(0, 2), 10);
+			if (day > 31) value = '31' + value.slice(2);
+		}
+		if (value.length >= 4) {
+			const month = parseInt(value.slice(2, 4), 10);
+			if (month > 12) value = value.slice(0, 2) + '12' + value.slice(4);
+		}
+		if (value.length >= 6) {
+			const year = parseInt(value.slice(4, 8), 10);
+			if (year > 9999) value = value.slice(0, 4) + '9999';
+		}
+
+		let formatted = '';
+		if (value.length > 0) {
+			formatted = value.slice(0, 2);
+			if (value.length >= 4) {
+				formatted += '/' + value.slice(2, 4);
+			}
+			if (value.length >= 6) {
+				formatted += '/' + value.slice(4, 8);
+			}
+		}
+
+		tempFilters[field] = formatted;
+		input.value = formatted;
+	}
+
+	function parseDateDMY(dmyString) {
+		if (!dmyString || dmyString.length !== 10) return null;
+		const parts = dmyString.split('/');
+		if (parts.length !== 3) return null;
+		const [dayStr, monthStr, yearStr] = parts;
+		if (dayStr.length !== 2 || monthStr.length !== 2 || yearStr.length !== 4) return null;
+
+		const day = parseInt(dayStr, 10);
+		const month = parseInt(monthStr, 10);
+		const year = parseInt(yearStr, 10);
+
+		if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+		if (day < 1 || day > 31) return null;
+		if (month < 1 || month > 12) return null;
+		if (year < 1900 || year > 9999) return null;
+
+		const date = new Date(year, month - 1, day);
+		if (date.getDate() !== day) return null;
+		return date;
+	}
+
+	function formatDate(isoString) {
+		const date = new Date(isoString);
+		const day = String(date.getDate()).padStart(2, '0');
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const year = date.getFullYear();
+		return `${day}/${month}/${year}`;
 	}
 
 	onMount(async () => {
@@ -259,7 +411,7 @@
 					<div class="loading">Loading posts...</div>
 				{:else if bskyError}
 					<div class="error-message">{bskyError}</div>
-				{:else if selectedPost}
+				{:else if selectedPost?.post}
 					{@html renderMainPost(selectedPost)}
 				{/if}
 			</div>
@@ -271,8 +423,21 @@
 		class="main-content posts-sidebar content"
 		bind:this={contentEls['posts_sidebar']}
 	>
-		<section class="content" style="display: flex;">
-			<h2>Posts</h2>
+		<section class="content" style="display: flex; flex-direction: column;">
+			<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+				<h2 style="margin: 0;">Posts</h2>
+				<button
+					type="button"
+					class="filter-button"
+					onclick={() => openFilterDialog()}
+					style="background: var(--color-secondary); border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 12px; color: var(--color-quinary); transition: all 0.2s ease-in-out;"
+				>
+					Filter
+					{#if hasActiveFilters()}
+						<span style="background: var(--color-primary); color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; margin-left: 4px;">!</span>
+					{/if}
+				</button>
+			</div>
 			<div id="bsky-posts-sidebar">
 				{#if bskyLoading}
 					<div class="loading">Loading posts...</div>
@@ -283,12 +448,11 @@
 						{@const globalIndex = currentPage * SIDEBAR_POSTS_COUNT + i}
 						{@const post = postData.post}
 						{@const record = post.record}
-						{@const date = new Date(record.createdAt).toISOString().split('T')[0]}
+						{@const date = formatDate(record.createdAt)}
 						{@const uri = post.uri}
 						{@const postMatch = uri.match(/app\.bsky\.feed\.post\/([a-z0-9]+)/)}
 						{@const postUrl = postMatch ? `https://bsky.app/profile/${BSKY_HANDLE}/post/${postMatch[1]}` : `https://bsky.app/profile/${BSKY_HANDLE}`}
 						{@const text = record.text || ''}
-						{@const truncated = text.length > 150 ? text.substring(0, 150) + '...' : text}
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<!-- svelte-ignore a11y_no_static_element_interactions -->
 						<div
@@ -303,7 +467,7 @@
 								</div>
 							</div>
 							<div class="text">
-								<p>{truncated}</p>
+								<p style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin: 0;">{text}</p>
 							</div>
 							<div class="metadata">
 								<div class="item date">{date}</div>
@@ -315,14 +479,59 @@
 			</div>
 			<div class="pagination-controls" style="text-align: center; margin: 20px 0;">
 				<button onclick={prevPage} disabled={!hasPrev} style="margin-right: 10px;">Prev</button>
-				{#if allPosts.length > 0}
+				{#if filteredPosts.length > 0}
 					<span id="page-info">{currentPage + 1} / {totalPages}</span>
 				{/if}
 				<button onclick={nextPage} disabled={!hasNext} style="margin-left: 10px;">Next</button>
 			</div>
+			{#if hasActiveFilters()}
+				<div style="text-align: center; font-size: 11px; color: var(--color-primary); margin-top: 10px;">
+					Showing {filteredPosts.length} of {allPosts.length} posts
+				</div>
+			{/if}
 		</section>
 	</div>
 </div>
+
+{#if showFilterDialog}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div
+		class="filter-dialog-overlay"
+		onclick={(e) => { if (e.target === e.currentTarget) showFilterDialog = false; }}
+		style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); z-index: 1000; display: flex; align-items: center; justify-content: center;"
+	>
+		<div class="filter-dialog" style="background: var(--color-tertiary); border: 2px solid var(--color-primary); border-radius: 15px; padding: 24px; width: 320px; max-width: 90vw; box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);">
+			<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+				<h3 style="color: var(--color-primary); margin: 0;">Filter Posts</h3>
+				<button type="button" onclick={() => showFilterDialog = false} style="background: none; border: none; color: var(--color-quinary); font-size: 20px; cursor: pointer; padding: 0;">&times;</button>
+			</div>
+
+			<div style="margin-bottom: 16px;">
+				<label for="from-date" style="display: block; margin-bottom: 6px; font-size: 14px; color: var(--color-quinary);">From Date</label>
+				<input id="from-date" type="text" placeholder="dd/mm/yyyy" value={tempFilters.fromDate} oninput={(e) => handleDateInput(e, 'fromDate')} style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-primary); border-radius: 8px; background: var(--color-quaternary); color: var(--color-quinary); font-family: 'Courier New', monospace;" />
+			</div>
+
+			<div style="margin-bottom: 16px;">
+				<label for="to-date" style="display: block; margin-bottom: 6px; font-size: 14px; color: var(--color-quinary);">To Date</label>
+				<input id="to-date" type="text" placeholder="dd/mm/yyyy" value={tempFilters.toDate} oninput={(e) => handleDateInput(e, 'toDate')} style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-primary); border-radius: 8px; background: var(--color-quaternary); color: var(--color-quinary); font-family: 'Courier New', monospace;" />
+			</div>
+
+			<div style="margin-bottom: 20px;">
+				<label for="sort-order" style="display: block; margin-bottom: 6px; font-size: 14px; color: var(--color-quinary);">Sort By</label>
+				<select id="sort-order" bind:value={tempFilters.sortOrder} style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-primary); border-radius: 8px; background: var(--color-quaternary); color: var(--color-quinary); font-family: 'Courier New', monospace;">
+					<option value="newest">Newest First</option>
+					<option value="oldest">Oldest First</option>
+				</select>
+			</div>
+
+			<div style="display: flex; gap: 10px; justify-content: flex-end;">
+				<button type="button" onclick={resetFilters} style="background: none; border: 1px solid var(--color-quinary); border-radius: 8px; padding: 8px 16px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 12px; color: var(--color-quinary);">Reset</button>
+				<button type="button" onclick={applyFilters} style="background: var(--color-primary); border: none; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 12px; color: white;">Apply</button>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <hr>
 <Footer />
