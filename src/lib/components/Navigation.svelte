@@ -82,4 +82,18 @@
 		text-shadow: -1px -1px 0 var(--color-tertiary), 1px 1px 0 var(--color-tertiary), 1px -1px 0 var(--color-tertiary), -1px 1px 0 var(--color-tertiary);
 		text-decoration: underline;
 	}
+
+	@media (max-width: 768px) {
+		nav ul {
+			flex-wrap: wrap;
+			gap: 10px;
+			padding: 10px;
+			justify-content: center;
+		}
+
+		nav ul li {
+			font-size: 1rem;
+			padding: 5px;
+		}
+	}
 </style>

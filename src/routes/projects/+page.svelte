@@ -56,7 +56,7 @@
 					<br>
 					<p>Here's a video of it in action:</p>
 					<br>
-					<iframe width="560" height="315" class="youtube-embed"
+					<iframe class="youtube-embed"
 						src="https://www.youtube-nocookie.com/embed/7gfgvar73L0?si=avbH3mQy6IRAO244"
 						title="YouTube video player" frameborder="0"
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -123,5 +123,18 @@
 	.youtube-embed {
 		max-width: 100%;
 		padding-bottom: 10px;
+	}
+
+	@media (max-width: 768px) {
+		.youtube-embed {
+			width: 100%;
+			height: auto;
+			aspect-ratio: 16 / 9;
+		}
+
+		.project {
+			height: auto;
+			min-height: 180px;
+		}
 	}
 </style>

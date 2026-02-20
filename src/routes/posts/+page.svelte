@@ -37,6 +37,7 @@
 	});
 
 	let showFilterDialog = $state(false);
+	let isMobileSidebarOpen = $state(false);
 
 	let filteredPosts = $derived.by(() => {
 		let result = [...allPosts];
@@ -103,6 +104,10 @@
 			if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
 			const queryString = params.toString();
 			goto(queryString ? `/posts/post/${match[1]}?${queryString}` : `/posts/post/${match[1]}`);
+			if (window.innerWidth <= 1024) {
+				toggleSidebar();
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			}
 		}
 	}
 
@@ -148,6 +153,11 @@
 		showFilterDialog = false;
 	}
 
+	function toggleSidebar() {
+		isMobileSidebarOpen = !isMobileSidebarOpen;
+		document.body.style.overflow = isMobileSidebarOpen ? 'hidden' : '';
+	}
+
 	function updateUrl() {
 		const params = new URLSearchParams();
 		if (filters.fromDate) params.set('from', filters.fromDate);
@@ -175,6 +185,21 @@
 
 <Header title="Welcome to Fairfruit" />
 
+{#if isMobileSidebarOpen}
+	<div
+		class="sidebar-backdrop"
+		onclick={toggleSidebar}
+		onkeydown={(e) => (e.key === 'Escape' || e.key === 'Enter') && toggleSidebar()}
+		role="button"
+		tabindex="0"
+		aria-label="Close posts sidebar"
+	></div>
+{/if}
+
+<button class="fab-trigger" onclick={toggleSidebar}>
+	<i class="fa-solid fa-list"></i> Posts
+</button>
+
 <div class="container">
 	<div class="main-content">
 		<section data-content="posts" class="content">
@@ -188,7 +213,7 @@
 		</section>
 	</div>
 
-	<div data-content="posts" class="main-content posts-sidebar content">
+	<div data-content="posts" class="main-content posts-sidebar content" class:open={isMobileSidebarOpen}>
 		<section class="content">
 			<div class="sidebar-header">
 				<h2>Posts</h2>
@@ -338,5 +363,59 @@
 	#page-info {
 		color: var(--color-quinary);
 		font-size: 12px;
+	}
+
+	.fab-trigger,
+	.sidebar-backdrop {
+		display: none;
+	}
+
+	@media (max-width: 1024px) {
+		.fab-trigger {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			background: var(--color-primary);
+			color: white;
+			border: none;
+			border-radius: 25px;
+			padding: 12px 20px;
+			font-family: inherit;
+			font-weight: bold;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+			z-index: 999;
+			cursor: pointer;
+		}
+
+		.sidebar-backdrop {
+			display: block;
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.6);
+			z-index: 1000;
+			backdrop-filter: blur(2px);
+		}
+
+		.posts-sidebar {
+			position: fixed;
+			top: 0;
+			right: -100%;
+			width: 85vw;
+			max-width: 380px;
+			height: 100dvh;
+			margin: 0;
+			border-radius: 20px 0 0 20px;
+			z-index: 1001;
+			transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			-webkit-overflow-scrolling: touch;
+			overflow-y: auto;
+		}
+
+		.posts-sidebar.open {
+			right: 0;
+		}
 	}
 </style>

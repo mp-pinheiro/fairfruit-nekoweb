@@ -87,6 +87,8 @@ body::after {
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
     border: 1px solid var(--color-primary);
     max-width: 800px;
+    position: relative;
+    z-index: 1;
 }
 
 .main-content .content {
@@ -173,9 +175,37 @@ section[data-content="posts"] {
     height: 1117px;
 }
 
+@media (max-width: 1024px) {
+    body {
+        margin-right: 0;
+        padding-bottom: 80px;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        margin: 0;
+        padding: 0 10px;
+        box-sizing: border-box;
+    }
+
+    .main-content {
+        max-width: 100%;
+        width: 100%;
+        margin: 10px 0;
+        padding: 15px;
+    }
+
+    section[data-content="posts"] {
+        height: auto;
+        min-height: 60vh;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
-        transform: scale(1);
         width: 100%;
     }
 
@@ -208,6 +238,11 @@ section[data-content="posts"] {
 a {
     color: var(--color-primary);
     text-decoration: none;
+}
+
+a, p, span, div {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 .link {

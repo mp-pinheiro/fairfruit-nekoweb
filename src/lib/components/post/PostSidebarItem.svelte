@@ -8,6 +8,7 @@
 	let text = $derived(record?.text || '');
 	let date = $derived(record?.createdAt ? formatDate(record.createdAt) : '');
 	let postUrl = $derived(post?.uri ? createPostLink(post.uri) : '');
+	let postUrlDisplay = $derived(postUrl.split('/post/')[1] || postUrl);
 	let displayText = $derived(text.length > 150 ? text.substring(0, 150) + '...' : text);
 </script>
 
@@ -21,7 +22,7 @@
 	<div class="header">
 		<div class="title-block">
 			<div class="title">Bsky Post</div>
-			<span class="post-link">{postUrl}</span>
+			<span class="post-link">{postUrlDisplay}</span>
 		</div>
 	</div>
 	<div class="text">

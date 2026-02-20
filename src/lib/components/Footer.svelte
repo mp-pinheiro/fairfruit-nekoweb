@@ -47,5 +47,15 @@
 			justify-content: center;
 			gap: 5px;
 		}
+
+		.external-links {
+			flex-wrap: wrap;
+			padding: 0 10px 20px 10px;
+		}
+
+		.channels_item {
+			padding: 10px;
+			font-size: 1.2rem;
+		}
 	}
 </style>
