@@ -31,6 +31,11 @@
 		currentPostIndex = data.postIndex || 0;
 		bskyError = data.error || '';
 		postId = data.postId || '';
+		if (data.filters) {
+			filters.fromDate = data.filters.fromDate;
+			filters.toDate = data.filters.toDate;
+			filters.sortOrder = data.filters.sortOrder;
+		}
 	});
 
 	let sidebarPosts = $derived.by(() =>
@@ -42,9 +47,9 @@
 	let hasNext = $derived.by(() => (currentPage + 1) * SIDEBAR_POSTS_COUNT < allPosts.length);
 
 	let filters = $state({
-		fromDate: '',
-		toDate: '',
-		sortOrder: 'newest'
+		fromDate: data.filters?.fromDate || '',
+		toDate: data.filters?.toDate || '',
+		sortOrder: data.filters?.sortOrder || 'newest'
 	});
 
 	let tempFilters = $state({
@@ -61,7 +66,12 @@
 		const uri = post.post.uri;
 		const match = uri.match(/app\.bsky\.feed\.post\/([a-z0-9]+)/);
 		if (match) {
-			goto(`/posts/post/${match[1]}`);
+			const params = new URLSearchParams();
+			if (filters.fromDate) params.set('from', filters.fromDate);
+			if (filters.toDate) params.set('to', filters.toDate);
+			if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
+			const queryString = params.toString();
+			goto(queryString ? `/posts/post/${match[1]}?${queryString}` : `/posts/post/${match[1]}`);
 		}
 	}
 
@@ -121,11 +131,6 @@
 	}
 
 	onMount(() => {
-		const params = new URLSearchParams($page.url.search);
-		filters.fromDate = params.get('from') || '';
-		filters.toDate = params.get('to') || '';
-		filters.sortOrder = params.get('sort') || 'newest';
-
 		if (filters.fromDate) {
 			tempFilters.fromDate = formatDisplayDate(filters.fromDate);
 		}
@@ -164,16 +169,16 @@
 	>
 		<section class="content" style="display: flex; flex-direction: column;">
 			<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-				<h2 style="margin: 0;">Posts</h2>
+				<h2 style="margin: 0; line-height: 1;">Posts</h2>
 				<button
 					type="button"
 					class="filter-button"
 					onclick={() => openFilterDialog()}
-					style="background: var(--color-secondary); border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 12px; color: var(--color-quinary); transition: all 0.2s ease-in-out;"
+					style="display: flex; justify-content: center; align-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--color-secondary); border: none; cursor: pointer; transition: all 0.2s ease-in-out; position: relative;"
 				>
-					Filter
+					<i class="fa-solid fa-filter" style="color: var(--color-quinary); font-size: 13px;"></i>
 					{#if hasActiveFilters()}
-						<span style="background: var(--color-primary); color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; margin-left: 4px;">!</span>
+						<span style="position: absolute; top: -2px; right: -2px; background: var(--color-primary); color: white; border-radius: 50%; width: 14px; height: 14px; font-size: 9px; display: flex; align-items: center; justify-content: center;">!</span>
 					{/if}
 				</button>
 			</div>
