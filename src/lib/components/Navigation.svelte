@@ -1,6 +1,5 @@
 <script>
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
 	import ThemeToggle from './ThemeToggle.svelte';
 
 	const tabs = [
@@ -9,6 +8,18 @@
 		{ id: 'projects', label: 'Projects', icon: 'fa-solid fa-tablet', href: '/projects' },
 		{ id: 'posts', label: 'Posts', icon: 'fa-solid fa-comments', href: '/posts' }
 	];
+
+	function getHref(tab, url) {
+		if (tab.id === 'posts' && url.pathname.startsWith('/posts')) {
+			return url.pathname + url.search;
+		}
+		return tab.href;
+	}
+
+	function isActive(tab, url) {
+		if (tab.id === 'posts') return url.pathname.startsWith('/posts');
+		return url.pathname === tab.href || url.pathname === tab.href + '/';
+	}
 </script>
 
 <div class="container">
@@ -17,8 +28,8 @@
 			{#each tabs as tab}
 				<li>
 					<a
-						href={tab.href}
-						class:active={$page.url.pathname.replace(/\/$/, '') === tab.href || (tab.href === '/posts' && $page.url.pathname.startsWith('/posts'))}
+						href={getHref(tab, $page.url)}
+						class:active={isActive(tab, $page.url)}
 						data-sveltekit-preload-data="hover"
 					>
 						<i class={tab.icon}></i> {tab.label}
