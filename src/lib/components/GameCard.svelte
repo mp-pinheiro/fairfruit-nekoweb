@@ -105,4 +105,21 @@
 			max-width: 100%;
 		}
 	}
+
+	@media (max-width: 1024px) {
+		.iframe-popup {
+			position: static;
+			visibility: visible;
+			opacity: 1;
+			width: 100%;
+			height: auto;
+			aspect-ratio: 646 / 190;
+			margin-top: 15px;
+		}
+
+		.iframe-popup iframe {
+			width: 100%;
+			height: 100%;
+		}
+	}
 </style>

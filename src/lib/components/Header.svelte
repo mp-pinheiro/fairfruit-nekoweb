@@ -21,4 +21,16 @@
 		display: block;
 		margin: 35px auto;
 	}
+
+	@media (max-width: 768px) {
+		.logo {
+			width: 100px;
+			height: 100px;
+			margin: 20px auto 15px auto;
+		}
+
+		h1 {
+			font-size: 1.5rem;
+		}
+	}
 </style>
