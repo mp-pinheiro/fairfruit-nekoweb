@@ -1,17 +1,8 @@
-import { fetchPosts, BSKY_HANDLE, POSTS_PER_PAGE, SIDEBAR_POSTS_COUNT } from '$lib/features/bsky.js';
+import { fetchPosts, BSKY_HANDLE, POSTS_PER_PAGE, SIDEBAR_POSTS_COUNT, parsePost } from '$lib/features/bsky.js';
 import { error } from '@sveltejs/kit';
+import { parseDateISO } from '$lib/features/postFilters.js';
 
 export const prerender = false;
-
-function parseDateISO(isoString) {
-	if (!isoString) return null;
-	const match = isoString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-	if (match) {
-		const [, year, month, day] = match;
-		return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-	}
-	return null;
-}
 
 function applyFilters(posts, fromDate, toDate, sortOrder) {
 	let result = [...posts];
@@ -54,7 +45,9 @@ export async function load({ params, url, fetch }) {
 
 	try {
 		const data = await fetchPosts(BSKY_HANDLE, null, POSTS_PER_PAGE, fetch);
-		const allPosts = data.feed.filter(item => !item.reason);
+		const allPosts = data.feed
+			.filter(item => !item.reason)
+			.map(item => ({ ...item, ...parsePost(item.post) }));
 
 		const filteredPosts = applyFilters(allPosts, fromDate, toDate, sortOrder);
 

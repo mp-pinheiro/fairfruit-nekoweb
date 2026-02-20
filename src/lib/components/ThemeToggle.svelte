@@ -2,7 +2,7 @@
 	import { theme } from '$lib/stores/theme.js';
 </script>
 
-<button class="modeSwitch" onclick={() => theme.toggle()}>
+<button class="modeSwitch" onclick={() => theme.toggle()} aria-label="Toggle theme">
 	{#if $theme === 'dark'}
 		<i class="fa-solid fa-sun"></i>
 	{:else}

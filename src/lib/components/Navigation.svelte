@@ -8,14 +8,6 @@
 		{ id: 'projects', label: 'Projects', icon: 'fa-solid fa-tablet', href: '/projects' },
 		{ id: 'posts', label: 'Posts', icon: 'fa-solid fa-comments', href: '/posts' }
 	];
-
-	$: currentPath = $page.url.pathname;
-	$: isActive = (href) => {
-		if (href === '/posts') {
-			return currentPath.startsWith('/posts');
-		}
-		return currentPath === href;
-	};
 </script>
 
 <div class="container">
@@ -25,7 +17,7 @@
 				<li>
 					<a
 						href={tab.href}
-						class:active={isActive(tab.href)}
+						class:active={$page.url.pathname === tab.href || (tab.href === '/posts' && $page.url.pathname.startsWith('/posts'))}
 						data-sveltekit-preload-data="hover"
 					>
 						<i class={tab.icon}></i> {tab.label}
@@ -36,3 +28,46 @@
 	</nav>
 	<ThemeToggle />
 </div>
+
+<style>
+	nav {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 10px;
+	}
+
+	nav ul {
+		display: flex;
+		flex-direction: row wrap;
+		justify-content: space-evenly;
+		gap: 0 2rem;
+		padding: 8px;
+		align-items: center;
+		background-color: var(--color-secondary);
+		list-style: none;
+		border-radius: 10px;
+		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+	}
+
+	nav ul li {
+		font-size: 1.2rem;
+		transition: all 0.2s ease-in-out;
+	}
+
+	nav ul li:hover {
+		transform: scale(1.1);
+		transition: all 0.5s;
+	}
+
+	nav ul li a {
+		text-decoration: none;
+		color: var(--color-primary);
+	}
+
+	nav ul li a.active {
+		font-weight: bold;
+		text-shadow: -1px -1px 0 var(--color-tertiary), 1px 1px 0 var(--color-tertiary), 1px -1px 0 var(--color-tertiary), -1px 1px 0 var(--color-tertiary);
+		text-decoration: underline;
+	}
+</style>
