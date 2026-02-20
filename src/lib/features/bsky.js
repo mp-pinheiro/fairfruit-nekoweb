@@ -3,7 +3,17 @@ export const BSKY_API_BASE = 'https://public.api.bsky.app/xrpc';
 export const POSTS_PER_PAGE = 50;
 export const SIDEBAR_POSTS_COUNT = 5;
 
-export async function fetchPosts(handle, cursor, limit) {
+let postsCache = null;
+let cacheTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+export async function fetchPosts(handle, cursor, limit, fetchFn = fetch) {
+	const now = Date.now();
+
+	if (postsCache && (now - cacheTime) < CACHE_DURATION) {
+		return postsCache;
+	}
+
 	const url = new URL(`${BSKY_API_BASE}/app.bsky.feed.getAuthorFeed`);
 	url.searchParams.set('actor', handle);
 	url.searchParams.set('filter', 'posts_no_replies');
@@ -12,11 +22,20 @@ export async function fetchPosts(handle, cursor, limit) {
 		url.searchParams.set('cursor', cursor);
 	}
 
-	const response = await fetch(url.toString());
+	const response = await fetchFn(url.toString(), {
+		headers: {
+			'Cache-Control': 'max-age=300'
+		}
+	});
 	if (!response.ok) {
 		throw new Error(`API error: ${response.status} ${response.statusText}`);
 	}
-	return response.json();
+	const data = await response.json();
+
+	postsCache = data;
+	cacheTime = now;
+
+	return data;
 }
 
 export function formatDate(isoString) {
@@ -25,9 +44,14 @@ export function formatDate(isoString) {
 }
 
 export function escapeHtml(text) {
-	const div = document.createElement('div');
-	div.textContent = text;
-	return div.innerHTML;
+	const map = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#039;'
+	};
+	return text.replace(/[&<>"']/g, m => map[m]);
 }
 
 export function extractEmbedContent(embed) {
