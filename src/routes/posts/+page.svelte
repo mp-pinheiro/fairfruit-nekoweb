@@ -60,6 +60,7 @@
 		const match = uri.match(/app\.bsky\.feed\.post\/([a-z0-9]+)/);
 		if (match) {
 			const params = new URLSearchParams();
+			params.set('page', currentPage.toString());
 			if (filters.fromDate) params.set('from', filters.fromDate);
 			if (filters.toDate) params.set('to', filters.toDate);
 			if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
@@ -247,10 +248,9 @@
 					</div>
 				{:else}
 					{#each posts as postData, i}
-						{@const globalIndex = currentPage * SIDEBAR_POSTS_COUNT + i}
 						<PostSidebarItem
 							{postData}
-							index={globalIndex}
+							index={i}
 							onclick={selectPost}
 						/>
 					{/each}
