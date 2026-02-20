@@ -47,17 +47,22 @@ export function extractEmbedContent(embed) {
 	if (embedType === 'app.bsky.embed.external#view') {
 		const external = embed.external;
 		const uri = external.uri;
+		const title = external.title || '';
+		const description = external.description || '';
+
+		if (uri.includes('tenor.com') || uri.includes('media.tenor.com') || description.includes('tenor.co') || title.toLowerCase().includes('gif')) {
+			const gifUrl = uri.split('?')[0];
+			return `<br><img src="${gifUrl}" alt="${escapeHtml(title)}" style="max-width: 100%; border-radius: 8px; margin: 12px 0;">`;
+		}
 
 		const youtubeMatch = uri.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
 		if (youtubeMatch) {
 			const videoId = youtubeMatch[1];
 			return `<br><div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin: 12px 0;">
-                <iframe src="https://www.youtube.com/embed/${videoId}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
+                <iframe src="https://www.youtube-nocookie.com/embed/${videoId}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allowfullscreen loading="lazy"></iframe>
             </div>`;
 		}
 
-		const title = external.title || '';
-		const description = external.description || '';
 		const thumb = external.thumb || '';
 		const domain = uri.replace(/^https?:\/\//, '').split('/')[0];
 
@@ -79,7 +84,36 @@ export function extractEmbedContent(embed) {
 			html += extractEmbedContent(embed.media);
 		}
 		if (embed.record) {
-			html += extractEmbedContent(embed.record);
+			const quoted = embed.record.record;
+			if (quoted && (quoted.$type === 'app.bsky.embed.record#viewRecord' || quoted.value)) {
+				const author = quoted.author?.displayName || quoted.author?.handle || 'Unknown';
+				const handle = quoted.author?.handle || 'unknown';
+				const quoteText = quoted.value?.text || '';
+				const quoteLines = quoteText.split('\n').map(line => `<p>${escapeHtml(line)}</p>`).join('');
+
+				let quoteEmbeds = '';
+				if (quoted.embeds && quoted.embeds.length > 0) {
+					quoteEmbeds = quoted.embeds.map(e => {
+						if (e.$type === 'app.bsky.embed.recordWithMedia#view' && e.media) {
+							return extractEmbedContent(e.media);
+						}
+						if (e.$type === 'app.bsky.embed.record#view' || e.$type === 'app.bsky.embed.recordWithMedia#view') {
+							return '';
+						}
+						return extractEmbedContent(e);
+					}).join('');
+				}
+
+				html += `<br><div style="border: 2px solid var(--color-secondary); border-radius: 8px; padding: 12px; margin: 12px 0; background: var(--color-quaternary);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <strong style="color: var(--color-primary);">${escapeHtml(author)}</strong>
+                        <small style="color: var(--color-quinary);">@${escapeHtml(handle)}</small>
+                    </div>
+                    ${quoteLines}${quoteEmbeds}
+                </div>`;
+			} else {
+				html += extractEmbedContent(embed.record);
+			}
 		}
 		return html;
 	}
@@ -87,18 +121,30 @@ export function extractEmbedContent(embed) {
 	if (embedType === 'app.bsky.embed.record#view') {
 		const quoted = embed.record;
 
-		if (quoted.$type === 'app.bsky.embed.record#viewRecord') {
+		if (quoted.$type === 'app.bsky.embed.record#viewRecord' || quoted.value?.text) {
 			const author = quoted.author?.displayName || quoted.author?.handle || 'Unknown';
+			const handle = quoted.author?.handle || 'unknown';
 			const quoteText = quoted.value?.text || '';
-			const quoteLines = quoteText.split('\n').map(line => `<p>${line}</p>`).join('');
+			const quoteLines = quoteText.split('\n').map(line => `<p>${escapeHtml(line)}</p>`).join('');
 
 			let quoteEmbeds = '';
 			if (quoted.embeds && quoted.embeds.length > 0) {
-				quoteEmbeds = quoted.embeds.map(e => extractEmbedContent(e)).join('');
+				quoteEmbeds = quoted.embeds.map(e => {
+					if (e.$type === 'app.bsky.embed.recordWithMedia#view' && e.media) {
+						return extractEmbedContent(e.media);
+					}
+					if (e.$type === 'app.bsky.embed.record#view' || e.$type === 'app.bsky.embed.recordWithMedia#view') {
+						return '';
+					}
+					return extractEmbedContent(e);
+				}).join('');
 			}
 
-			return `<br><div style="border-left: 3px solid var(--color-secondary); padding-left: 12px; margin: 12px 0;">
-                <small style="color: var(--color-primary);">Replying to @${escapeHtml(author)}</small><br>
+			return `<br><div style="border: 2px solid var(--color-secondary); border-radius: 8px; padding: 12px; margin: 12px 0; background: var(--color-quaternary);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <strong style="color: var(--color-primary);">${escapeHtml(author)}</strong>
+                    <small style="color: var(--color-quinary);">@${escapeHtml(handle)}</small>
+                </div>
                 ${quoteLines}${quoteEmbeds}
             </div>`;
 		}
@@ -116,6 +162,10 @@ export function extractEmbedContent(embed) {
                 <p style="font-size: 14px; margin: 0;">${escapeHtml(description.substring(0, 200))}${description.length > 200 ? '...' : ''}</p>
             </div>`;
 		}
+
+		return `<br><div style="border: 2px solid var(--color-secondary); border-radius: 8px; padding: 12px; margin: 12px 0; background: var(--color-quaternary);">
+            <small style="color: var(--color-quinary);">Quoted Post</small>
+        </div>`;
 	}
 
 	return '';
