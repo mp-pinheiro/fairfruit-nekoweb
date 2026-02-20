@@ -2,3 +2,5 @@ node_modules
 build
 .svelte-kit
 .env
+.vscode
+CLAUDE.md
