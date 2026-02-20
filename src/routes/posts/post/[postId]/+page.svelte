@@ -9,7 +9,6 @@
 		SIDEBAR_POSTS_COUNT
 	} from '$lib/features/bsky.js';
 	import {
-		parseDateISO,
 		formatDisplayDate,
 		convertToISO,
 		handleDateInput
@@ -17,12 +16,26 @@
 
 	let { data } = $props();
 
-	let allPosts = $state(data.allPosts || []);
-	let selectedPost = $state(data.selectedPost);
-	let currentPage = $state(data.currentPage || 0);
-	let currentPostIndex = $state(data.postIndex || 0);
-	let bskyError = $state(data.error || '');
-	let postId = $state(data.postId || '');
+	let allPosts = $state([]);
+	let selectedPost = $state(null);
+	let currentPage = $state(0);
+	let currentPostIndex = $state(0);
+	let bskyError = $state('');
+	let postId = $state('');
+
+	let filters = $state({
+		fromDate: '',
+		toDate: '',
+		sortOrder: 'newest'
+	});
+
+	let tempFilters = $state({
+		fromDate: '',
+		toDate: '',
+		sortOrder: 'newest'
+	});
+
+	let showFilterDialog = $state(false);
 
 	$effect(() => {
 		allPosts = data.allPosts || [];
@@ -45,20 +58,6 @@
 	let totalPages = $derived.by(() => Math.ceil(allPosts.length / SIDEBAR_POSTS_COUNT));
 	let hasPrev = $derived.by(() => currentPage > 0);
 	let hasNext = $derived.by(() => (currentPage + 1) * SIDEBAR_POSTS_COUNT < allPosts.length);
-
-	let filters = $state({
-		fromDate: data.filters?.fromDate || '',
-		toDate: data.filters?.toDate || '',
-		sortOrder: data.filters?.sortOrder || 'newest'
-	});
-
-	let tempFilters = $state({
-		fromDate: '',
-		toDate: '',
-		sortOrder: 'newest'
-	});
-
-	let showFilterDialog = $state(false);
 
 	function selectPost(index) {
 		const post = allPosts[index];

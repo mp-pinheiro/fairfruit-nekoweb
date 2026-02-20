@@ -17,20 +17,15 @@
 
 	let { data } = $props();
 
-	const initialPosts = data.allPosts || [];
-	const initialPage = data.currentPage - 1;
-	const initialError = data.error || '';
-	const initialFilters = data.filters || { fromDate: '', toDate: '', sortOrder: 'newest' };
-
-	let allPosts = $state(initialPosts);
-	let currentPage = $state(initialPage);
+	let allPosts = $state(data.allPosts || []);
+	let currentPage = $state(data.currentPage - 1);
 	let currentPostIndex = $state(0);
-	let bskyError = $state(initialError);
+	let bskyError = $state(data.error || '');
 
 	let filters = $state({
-		fromDate: initialFilters.fromDate,
-		toDate: initialFilters.toDate,
-		sortOrder: initialFilters.sortOrder
+		fromDate: data.filters?.fromDate || '',
+		toDate: data.filters?.toDate || '',
+		sortOrder: data.filters?.sortOrder || 'newest'
 	});
 
 	let tempFilters = $state({
