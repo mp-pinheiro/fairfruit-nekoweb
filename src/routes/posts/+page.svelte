@@ -1,6 +1,6 @@
 <script>
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { navigating } from '$app/stores';
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import PostMain from '$lib/components/post/PostMain.svelte';
@@ -8,26 +8,22 @@
 	import FilterDialog from '$lib/components/FilterDialog.svelte';
 	import { SIDEBAR_POSTS_COUNT } from '$lib/features/bsky.js';
 	import {
-		parseDateISO,
 		formatDisplayDate,
 		convertToISO
 	} from '$lib/features/postFilters.js';
 
 	let { data } = $props();
 
-	// svelte-ignore state_referenced_locally
-	let allPosts = $state(data.allPosts ?? []);
-	// svelte-ignore state_referenced_locally
-	let currentPage = $state((data.currentPage ?? 1) - 1);
-	let currentPostIndex = $state(0);
-	// svelte-ignore state_referenced_locally
-	let bskyError = $state(data.error ?? '');
+	let posts = $state([]);
+	let totalCount = $state(0);
+	let currentPage = $state(0);
+	let bskyError = $state('');
+	let isLoading = $state(true);
 
-	// svelte-ignore state_referenced_locally
 	let filters = $state({
-		fromDate: data.filters?.fromDate ?? '',
-		toDate: data.filters?.toDate ?? '',
-		sortOrder: data.filters?.sortOrder ?? 'newest'
+		fromDate: '',
+		toDate: '',
+		sortOrder: 'newest'
 	});
 
 	let tempFilters = $state({
@@ -39,61 +35,26 @@
 	let showFilterDialog = $state(false);
 	let isMobileSidebarOpen = $state(false);
 
-	let filteredPosts = $derived.by(() => {
-		let result = [...allPosts];
-
-		if (filters.fromDate) {
-			const fromDate = parseDateISO(filters.fromDate);
-			if (fromDate) {
-				result = result.filter(item => {
-					const postDate = new Date(item.post.record.createdAt);
-					return postDate >= fromDate;
-				});
-			}
-		}
-
-		if (filters.toDate) {
-			const toDate = parseDateISO(filters.toDate);
-			if (toDate) {
-				toDate.setHours(23, 59, 59);
-				result = result.filter(item => {
-					const postDate = new Date(item.post.record.createdAt);
-					return postDate <= toDate;
-				});
-			}
-		}
-
-		result.sort((a, b) => {
-			const dateA = new Date(a.post.record.createdAt);
-			const dateB = new Date(b.post.record.createdAt);
-			return filters.sortOrder === 'newest' ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
-		});
-
-		return result;
-	});
-
-	let sidebarPosts = $derived.by(() =>
-		filteredPosts.slice(currentPage * SIDEBAR_POSTS_COUNT, (currentPage + 1) * SIDEBAR_POSTS_COUNT)
-	);
-
-	let totalPages = $derived.by(() => Math.ceil(filteredPosts.length / SIDEBAR_POSTS_COUNT));
-	let hasPrev = $derived.by(() => currentPage > 0);
-	let hasNext = $derived.by(() => (currentPage + 1) * SIDEBAR_POSTS_COUNT < filteredPosts.length);
-	let selectedPost = $derived.by(() => {
-		if (currentPostIndex >= filteredPosts.length) return null;
-		return filteredPosts[currentPostIndex] ?? null;
-	});
-
 	$effect(() => {
-		filters.fromDate;
-		filters.toDate;
-		filters.sortOrder;
-		currentPage = 0;
-		currentPostIndex = 0;
+		posts = data.posts ?? [];
+		totalCount = data.totalCount ?? 0;
+		currentPage = data.currentPage ?? 0;
+		bskyError = data.error ?? '';
+		if (data.filters) {
+			filters.fromDate = data.filters.fromDate;
+			filters.toDate = data.filters.toDate;
+			filters.sortOrder = data.filters.sortOrder;
+		}
+		isLoading = false;
 	});
+
+	let totalPages = $derived.by(() => Math.ceil(totalCount / SIDEBAR_POSTS_COUNT));
+	let hasPrev = $derived.by(() => currentPage > 0);
+	let hasNext = $derived.by(() => (currentPage + 1) * SIDEBAR_POSTS_COUNT < totalCount);
+	let selectedPost = $derived.by(() => posts[0] ?? null);
 
 	function selectPost(index) {
-		const post = filteredPosts[index];
+		const post = posts[index];
 		if (!post) return;
 		const uri = post.post.uri;
 		const match = uri.match(/app\.bsky\.feed\.post\/([a-z0-9]+)/);
@@ -112,11 +73,29 @@
 	}
 
 	function prevPage() {
-		if (hasPrev) currentPage--;
+		if (hasPrev) {
+			const newPage = currentPage - 1;
+			const params = new URLSearchParams();
+			params.set('page', newPage.toString());
+			if (filters.fromDate) params.set('from', filters.fromDate);
+			if (filters.toDate) params.set('to', filters.toDate);
+			if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
+			const queryString = params.toString();
+			goto(queryString ? `/posts?${queryString}` : '/posts', { keepFocus: true });
+		}
 	}
 
 	function nextPage() {
-		if (hasNext) currentPage++;
+		if (hasNext) {
+			const newPage = currentPage + 1;
+			const params = new URLSearchParams();
+			params.set('page', newPage.toString());
+			if (filters.fromDate) params.set('from', filters.fromDate);
+			if (filters.toDate) params.set('to', filters.toDate);
+			if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
+			const queryString = params.toString();
+			goto(queryString ? `/posts?${queryString}` : '/posts', { keepFocus: true });
+		}
 	}
 
 	function hasActiveFilters() {
@@ -127,11 +106,8 @@
 		tempFilters.fromDate = '';
 		tempFilters.toDate = '';
 		tempFilters.sortOrder = 'newest';
-		filters.fromDate = '';
-		filters.toDate = '';
-		filters.sortOrder = 'newest';
 		showFilterDialog = false;
-		updateUrl();
+		goto('/posts');
 	}
 
 	function openFilterDialog() {
@@ -142,11 +118,18 @@
 	}
 
 	function handleFilterApply(newFilters) {
-		filters.fromDate = newFilters.fromDate ? convertToISO(newFilters.fromDate) : '';
-		filters.toDate = newFilters.toDate ? convertToISO(newFilters.toDate) : '';
-		filters.sortOrder = newFilters.sortOrder;
+		const fromDate = newFilters.fromDate ? convertToISO(newFilters.fromDate) : '';
+		const toDate = newFilters.toDate ? convertToISO(newFilters.toDate) : '';
+		const sortOrder = newFilters.sortOrder;
+
 		showFilterDialog = false;
-		updateUrl();
+
+		const params = new URLSearchParams();
+		if (fromDate) params.set('from', fromDate);
+		if (toDate) params.set('to', toDate);
+		if (sortOrder !== 'newest') params.set('sort', sortOrder);
+		const queryString = params.toString();
+		goto(queryString ? `/posts?${queryString}` : '/posts');
 	}
 
 	function handleFilterClose() {
@@ -158,21 +141,16 @@
 		document.body.style.overflow = isMobileSidebarOpen ? 'hidden' : '';
 	}
 
-	function updateUrl() {
-		const params = new URLSearchParams();
-		if (filters.fromDate) params.set('from', filters.fromDate);
-		if (filters.toDate) params.set('to', filters.toDate);
-		if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
-		const queryString = params.toString();
-		goto(queryString ? `/posts?${queryString}` : '/posts', { keepFocus: true });
-	}
-
-	onMount(() => {
+	$effect(() => {
 		if (filters.fromDate) {
 			tempFilters.fromDate = formatDisplayDate(filters.fromDate);
+		} else {
+			tempFilters.fromDate = '';
 		}
 		if (filters.toDate) {
 			tempFilters.toDate = formatDisplayDate(filters.toDate);
+		} else {
+			tempFilters.toDate = '';
 		}
 		tempFilters.sortOrder = filters.sortOrder;
 	});
@@ -206,6 +184,23 @@
 			<div id="bsky-posts-feed">
 				{#if bskyError}
 					<div class="error-message">{bskyError}</div>
+				{:else if isLoading || $navigating}
+					<div class="skeleton-main">
+						<div class="skeleton-main-header">
+							<div class="skeleton-main-title"></div>
+							<div class="skeleton-main-link"></div>
+						</div>
+						<div class="skeleton-main-text">
+							<div class="skeleton-line-long"></div>
+							<div class="skeleton-line-long"></div>
+							<div class="skeleton-line-long"></div>
+							<div class="skeleton-line-short"></div>
+						</div>
+						<div class="skeleton-main-metadata">
+							<div class="skeleton-main-item"></div>
+							<div class="skeleton-main-item"></div>
+						</div>
+					</div>
 				{:else if selectedPost}
 					<PostMain postData={selectedPost} />
 				{/if}
@@ -231,8 +226,27 @@
 			<div id="bsky-posts-sidebar">
 				{#if bskyError}
 					<div class="error-message">{bskyError}</div>
+				{:else if isLoading || $navigating}
+					<div class="skeleton-container">
+						{#each Array(SIDEBAR_POSTS_COUNT) as _}
+							<div class="skeleton-post">
+								<div class="skeleton-header">
+									<div class="skeleton-title"></div>
+								</div>
+								<div class="skeleton-text">
+									<div class="skeleton-line"></div>
+									<div class="skeleton-line"></div>
+									<div class="skeleton-line short"></div>
+								</div>
+								<div class="skeleton-metadata">
+									<div class="skeleton-item"></div>
+									<div class="skeleton-item"></div>
+								</div>
+							</div>
+						{/each}
+					</div>
 				{:else}
-					{#each sidebarPosts as postData, i}
+					{#each posts as postData, i}
 						{@const globalIndex = currentPage * SIDEBAR_POSTS_COUNT + i}
 						<PostSidebarItem
 							{postData}
@@ -244,13 +258,13 @@
 			</div>
 			<div class="pagination-controls">
 				<button onclick={prevPage} disabled={!hasPrev}>Prev</button>
-				{#if filteredPosts.length > 0}
+				{#if totalCount > 0}
 					<span id="page-info">{currentPage + 1} / {totalPages}</span>
 				{/if}
 				<button onclick={nextPage} disabled={!hasNext}>Next</button>
 				{#if hasActiveFilters()}
 					<div class="filter-info">
-						Showing {filteredPosts.length} of {allPosts.length} posts
+						Showing {totalCount} posts
 					</div>
 				{/if}
 			</div>
@@ -336,6 +350,184 @@
 	.error-message {
 		margin: 20px;
 		max-width: 600px;
+	}
+
+	.skeleton-container {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.skeleton-post {
+		border: 2px solid var(--color-quinary);
+		border-radius: 15px;
+		padding: 20px;
+		height: 180px;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		background: var(--color-quaternary);
+		position: relative;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.skeleton-post::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(
+			90deg,
+			transparent 0%,
+			rgba(255, 255, 255, 0.3) 50%,
+			transparent 100%
+		);
+		animation: shimmer 1.5s infinite;
+	}
+
+	@keyframes shimmer {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
+	.skeleton-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 10px;
+	}
+
+	.skeleton-title {
+		width: 100px;
+		height: 24px;
+		background: var(--color-secondary);
+		border-radius: 4px;
+		opacity: 0.5;
+	}
+
+	.skeleton-text {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin: 10px 0;
+	}
+
+	.skeleton-line {
+		height: 14px;
+		background: var(--color-secondary);
+		border-radius: 4px;
+		opacity: 0.5;
+	}
+
+	.skeleton-line.short {
+		width: 60%;
+	}
+
+	.skeleton-metadata {
+		display: flex;
+		justify-content: flex-end;
+		gap: 10px;
+		margin-top: auto;
+	}
+
+	.skeleton-item {
+		width: 60px;
+		height: 24px;
+		background: var(--color-secondary);
+		border-radius: 5px;
+		opacity: 0.5;
+	}
+
+	.skeleton-main {
+		padding: 20px;
+		position: relative;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.skeleton-main::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(
+			90deg,
+			transparent 0%,
+			rgba(255, 255, 255, 0.3) 50%,
+			transparent 100%
+		);
+		animation: shimmer 1.5s infinite;
+	}
+
+	.skeleton-main-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 20px;
+	}
+
+	.skeleton-main-title {
+		width: 150px;
+		height: 32px;
+		background: var(--color-secondary);
+		border-radius: 4px;
+		opacity: 0.5;
+	}
+
+	.skeleton-main-link {
+		width: 200px;
+		height: 16px;
+		background: var(--color-secondary);
+		border-radius: 4px;
+		opacity: 0.5;
+	}
+
+	.skeleton-main-text {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		margin: 20px 0;
+	}
+
+	.skeleton-line-long {
+		height: 18px;
+		background: var(--color-secondary);
+		border-radius: 4px;
+		opacity: 0.5;
+		width: 100%;
+	}
+
+	.skeleton-line-short {
+		height: 18px;
+		background: var(--color-secondary);
+		border-radius: 4px;
+		opacity: 0.5;
+		width: 60%;
+	}
+
+	.skeleton-main-metadata {
+		display: flex;
+		justify-content: flex-end;
+		gap: 10px;
+		margin-top: 20px;
+	}
+
+	.skeleton-main-item {
+		width: 80px;
+		height: 28px;
+		background: var(--color-secondary);
+		border-radius: 5px;
+		opacity: 0.5;
 	}
 
 	.pagination-controls button {
