@@ -14,3 +14,38 @@
 		<a href="https://fairfruit.nekoweb.org"><img src="/img/buttons/button.png" alt="Fairfruit"></a>
 	</div>
 </footer>
+
+<style>
+	.channels {
+		display: flex;
+		justify-content: center;
+		gap: 10px;
+		max-width: 400px;
+		margin: 20px auto;
+	}
+
+	.channels_item {
+		transition: transform 0.2s;
+		color: var(--color-primary);
+	}
+
+	.channels_item:hover {
+		transform: scale(1.1) rotate(360deg);
+		transition: transform 0.5s;
+	}
+
+	.external-links {
+		display: flex;
+		justify-content: center;
+		gap: 10px;
+		padding-bottom: 20px;
+	}
+
+	@media (max-width: 768px) {
+		.channels {
+			flex-direction: row;
+			justify-content: center;
+			gap: 5px;
+		}
+	}
+</style>

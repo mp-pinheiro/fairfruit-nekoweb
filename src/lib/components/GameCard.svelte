@@ -14,4 +14,95 @@
 	iframe {
 		border: none;
 	}
+
+	.link-container {
+		position: relative;
+		display: inline-block;
+		margin: 0 auto;
+	}
+
+	.links {
+		display: block;
+		margin: 10px auto;
+		padding: 15px 20px;
+		max-width: 400px;
+		font-size: 0.95rem;
+		color: black;
+		text-decoration: none;
+		border-radius: 10px;
+		transition: all 0.2s ease-in-out;
+		text-align: center;
+	}
+
+	.links:hover {
+		animation: shake 0.5s infinite;
+	}
+
+	.links-red {
+		background-color: #ffa093;
+	}
+
+	.links-purple {
+		background-color: #b39ddb;
+	}
+
+	.links-green {
+		background-color: #73e2a7;
+	}
+
+	.links-yellow {
+		background-color: #ffc15e;
+	}
+
+	.iframe-popup {
+		visibility: hidden;
+		position: absolute;
+		width: 646px;
+		height: 190px;
+		z-index: 1;
+		opacity: 0;
+		transition: visibility 0s, opacity 0.5s linear;
+		transition-delay: 0s, 0s;
+	}
+
+	.link-container:hover .iframe-popup,
+	.iframe-popup:hover {
+		visibility: visible;
+		opacity: 1;
+	}
+
+	@keyframes shake {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+
+		10%,
+		30%,
+		50%,
+		70% {
+			transform: translateX(-1px);
+		}
+
+		20%,
+		40%,
+		60% {
+			transform: translateX(1px);
+		}
+
+		80% {
+			transform: translateX(8px);
+		}
+
+		90% {
+			transform: translateX(-8px);
+		}
+	}
+
+	@media (max-width: 768px) {
+		.links {
+			padding: 10px 20px;
+			max-width: 100%;
+		}
+	}
 </style>

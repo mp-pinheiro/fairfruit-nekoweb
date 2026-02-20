@@ -303,4 +303,36 @@
 		color: var(--color-primary);
 		margin-top: 10px;
 	}
+
+	.error-message {
+		margin: 20px;
+		max-width: 600px;
+	}
+
+	.pagination-controls button {
+		background-color: var(--color-secondary);
+		color: var(--color-quinary);
+		border: none;
+		border-radius: 10px;
+		padding: 8px 16px;
+		font-family: 'Courier New', monospace;
+		font-size: 12px;
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+	}
+
+	.pagination-controls button:hover {
+		transform: scale(1.05);
+		background-color: var(--color-primary);
+	}
+
+	.pagination-controls button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	#page-info {
+		color: var(--color-quinary);
+		font-size: 12px;
+	}
 </style>

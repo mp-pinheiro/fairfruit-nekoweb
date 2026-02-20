@@ -12,7 +12,7 @@
 
 <div class="container">
 	<div class="main-content">
-		<section class="content" style="display: flex;">
+		<section class="content error">
 			<h2>Oops!</h2>
 			<br>
 			<p>{$page.status}: {$page.error?.message ?? 'Page not found'}</p>
@@ -24,3 +24,9 @@
 
 <hr>
 <Footer />
+
+<style>
+	.content.error {
+		display: flex;
+	}
+</style>
