@@ -1,5 +1,6 @@
 <script>
 	import { escapeHtml } from '$lib/features/bsky.js';
+	import PostEmbedSelf from './PostEmbed.svelte';
 
 	let { embedData } = $props();
 
@@ -56,7 +57,7 @@
 		{/if}
 		{#if data.embeds && data.embeds.length > 0}
 			{#each data.embeds as embedData}
-				<svelte:self embedData={embedData} />
+				<PostEmbedSelf embedData={embedData} />
 			{/each}
 		{/if}
 	</div>
@@ -208,16 +209,12 @@
 		overflow: hidden;
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
+		line-clamp: 2;
 		-webkit-box-orient: vertical;
 	}
 
 	.embed-card-domain {
 		font-size: 11px;
 		color: var(--color-primary);
-	}
-
-	.empty-para {
-		margin: 8px 0;
-		min-height: 4px;
 	}
 </style>

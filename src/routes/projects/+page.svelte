@@ -120,22 +120,6 @@
 		align-items: center;
 	}
 
-	.project .metadata {
-		display: flex;
-		justify-content: end;
-		text-align: right;
-		gap: 10px;
-	}
-
-	.project .item {
-		font-size: 12px;
-		background-color: var(--color-secondary);
-		color: var(--color-quinary);
-		border-radius: 5px;
-		padding: 5px;
-		margin: 5px 0;
-	}
-
 	.youtube-embed {
 		max-width: 100%;
 		padding-bottom: 10px;

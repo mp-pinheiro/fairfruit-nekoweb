@@ -41,13 +41,15 @@
 	}
 </script>
 
+<svelte:window onkeydown={(e) => show && e.key === 'Escape' && onClose()} />
+
 {#if show}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="filter-dialog-overlay"
 		onclick={handleClose}
 		role="dialog"
+		tabindex="-1"
 		aria-modal="true"
 		aria-labelledby="filter-dialog-title"
 	>

@@ -15,11 +15,15 @@
 
 	let { data } = $props();
 
+	// svelte-ignore state_referenced_locally
 	let allPosts = $state(data.allPosts ?? []);
+	// svelte-ignore state_referenced_locally
 	let currentPage = $state((data.currentPage ?? 1) - 1);
 	let currentPostIndex = $state(0);
+	// svelte-ignore state_referenced_locally
 	let bskyError = $state(data.error ?? '');
 
+	// svelte-ignore state_referenced_locally
 	let filters = $state({
 		fromDate: data.filters?.fromDate ?? '',
 		toDate: data.filters?.toDate ?? '',
@@ -61,7 +65,7 @@
 		result.sort((a, b) => {
 			const dateA = new Date(a.post.record.createdAt);
 			const dateB = new Date(b.post.record.createdAt);
-			return filters.sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+			return filters.sortOrder === 'newest' ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
 		});
 
 		return result;

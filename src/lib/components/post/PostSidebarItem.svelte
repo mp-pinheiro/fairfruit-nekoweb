@@ -11,14 +11,12 @@
 	let displayText = $derived(text.length > 150 ? text.substring(0, 150) + '...' : text);
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
 	class="post {isSelected ? 'selected' : ''}"
 	onclick={() => onclick?.(index)}
 	role="button"
 	tabindex="0"
-	onkeydown={(e) => e.key === 'Enter' && onclick?.(index)}
+	onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onclick?.(index)}
 >
 	<div class="header">
 		<div class="title-block">
@@ -98,6 +96,7 @@
 		overflow: hidden;
 		display: -webkit-box;
 		-webkit-line-clamp: 4;
+		line-clamp: 4;
 		-webkit-box-orient: vertical;
 	}
 
