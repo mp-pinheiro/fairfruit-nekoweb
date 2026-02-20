@@ -66,18 +66,6 @@
 		margin: 10px auto;
 	}
 
-	.game-content {
-		display: flex;
-		flex-direction: column;
-		padding: 20px;
-		text-align: left;
-		background-color: var(--color-tertiary);
-		border-radius: 10px;
-		margin: 20px;
-		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-		border: 1px solid var(--color-primary);
-	}
-
 	.project {
 		border: 2px solid var(--color-quinary);
 		border-radius: 15px;

@@ -4,7 +4,7 @@ import { parseDateISO } from '$lib/features/postFilters.js';
 
 export const prerender = false;
 
-function applyFilters(posts, fromDate, toDate, sortOrder) {
+function applyFilters(posts: any[], fromDate: string, toDate: string, sortOrder: string) {
 	let result = [...posts];
 
 	if (fromDate) {
@@ -31,17 +31,17 @@ function applyFilters(posts, fromDate, toDate, sortOrder) {
 	result.sort((a, b) => {
 		const dateA = new Date(a.post.record.createdAt);
 		const dateB = new Date(b.post.record.createdAt);
-		return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+		return sortOrder === 'newest' ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
 	});
 
 	return result;
 }
 
-export async function load({ params, url, fetch }) {
+export async function load({ params, url, fetch }: { params: { postId: string }; url: URL; fetch: any }) {
 	const { postId } = params;
-	const fromDate = url.searchParams.get('from') || '';
-	const toDate = url.searchParams.get('to') || '';
-	const sortOrder = url.searchParams.get('sort') || 'newest';
+	const fromDate = url.searchParams.get('from') ?? '';
+	const toDate = url.searchParams.get('to') ?? '';
+	const sortOrder = url.searchParams.get('sort') ?? 'newest';
 
 	try {
 		const data = await fetchPosts(BSKY_HANDLE, null, POSTS_PER_PAGE, fetch);
@@ -74,10 +74,11 @@ export async function load({ params, url, fetch }) {
 			postId,
 			filters: { fromDate, toDate, sortOrder }
 		};
-	} catch (e) {
-		if (e.status === 404) {
+	} catch (e: unknown) {
+		if (e && typeof e === 'object' && 'status' in e && e.status === 404) {
 			throw e;
 		}
+		const error = e instanceof Error ? e : new Error(String(e));
 		return {
 			allPosts: [],
 			selectedPost: null,
@@ -86,7 +87,7 @@ export async function load({ params, url, fetch }) {
 			sidebarPostsCount: SIDEBAR_POSTS_COUNT,
 			postId,
 			filters: { fromDate, toDate, sortOrder },
-			error: `Failed to load posts: ${e.message}`
+			error: `Failed to load posts: ${error.message}`
 		};
 	}
 }
