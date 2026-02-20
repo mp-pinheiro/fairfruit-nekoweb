@@ -1,13 +1,21 @@
 <script>
-	import { activeTab } from '$lib/stores/activeTab.js';
+	import { page } from '$app/stores';
 	import ThemeToggle from './ThemeToggle.svelte';
 
 	const tabs = [
-		{ id: 'me', label: 'Me', icon: 'fa-solid fa-apple-whole' },
-		{ id: 'games', label: 'Games', icon: 'fa-solid fa-gamepad' },
-		{ id: 'projects', label: 'Projects', icon: 'fa-solid fa-tablet' },
-		{ id: 'posts', label: 'Posts', icon: 'fa-solid fa-comments' }
+		{ id: 'me', label: 'Me', icon: 'fa-solid fa-apple-whole', href: '/me' },
+		{ id: 'games', label: 'Games', icon: 'fa-solid fa-gamepad', href: '/games' },
+		{ id: 'projects', label: 'Projects', icon: 'fa-solid fa-tablet', href: '/projects' },
+		{ id: 'posts', label: 'Posts', icon: 'fa-solid fa-comments', href: '/posts' }
 	];
+
+	$: currentPath = $page.url.pathname;
+	$: isActive = (href) => {
+		if (href === '/posts') {
+			return currentPath.startsWith('/posts');
+		}
+		return currentPath === href;
+	};
 </script>
 
 <div class="container">
@@ -15,14 +23,13 @@
 		<ul id="navList">
 			{#each tabs as tab}
 				<li>
-					<button
-						type="button"
-						class:active={$activeTab === tab.id}
-						onclick={() => activeTab.setTab(tab.id)}
-						style="background: none; border: none; padding: 0; color: inherit; text-decoration: none; font: inherit; cursor: pointer;"
+					<a
+						href={tab.href}
+						class:active={isActive(tab.href)}
+						data-sveltekit-preload-data="hover"
 					>
 						<i class={tab.icon}></i> {tab.label}
-					</button>
+					</a>
 				</li>
 			{/each}
 		</ul>
