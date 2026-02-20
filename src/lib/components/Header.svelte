@@ -12,3 +12,13 @@
 		<Navigation />
 	{/if}
 </header>
+
+<style>
+	.logo {
+		width: 150px;
+		height: 150px;
+		border-radius: 50%;
+		display: block;
+		margin: 35px auto;
+	}
+</style>

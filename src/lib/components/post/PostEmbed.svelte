@@ -164,4 +164,60 @@
 		font-size: 14px;
 		margin: 0;
 	}
+
+	.embed-card {
+		display: flex;
+		border: 1px solid var(--color-secondary);
+		border-radius: 8px;
+		overflow: hidden;
+		margin: 12px 0;
+		text-decoration: none;
+		color: inherit;
+		transition: border-color 0.2s;
+	}
+
+	.embed-card:hover {
+		border-color: var(--color-primary);
+	}
+
+	.embed-card-thumb {
+		width: 120px;
+		min-height: 80px;
+		object-fit: cover;
+		flex-shrink: 0;
+	}
+
+	.embed-card-body {
+		padding: 10px;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.embed-card-title {
+		font-size: 14px;
+		font-weight: bold;
+		color: var(--color-quinary);
+	}
+
+	.embed-card-desc {
+		font-size: 12px;
+		color: var(--color-quinary);
+		opacity: 0.8;
+		overflow: hidden;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+
+	.embed-card-domain {
+		font-size: 11px;
+		color: var(--color-primary);
+	}
+
+	.empty-para {
+		margin: 8px 0;
+		min-height: 4px;
+	}
 </style>

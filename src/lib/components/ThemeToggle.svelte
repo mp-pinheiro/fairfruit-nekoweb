@@ -9,3 +9,20 @@
 		<i class="fa-solid fa-moon"></i>
 	{/if}
 </button>
+
+<style>
+	.modeSwitch {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background-color: var(--color-quinary);
+		color: var(--color-quaternary);
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+		align-self: center;
+		border: none;
+	}
+</style>
