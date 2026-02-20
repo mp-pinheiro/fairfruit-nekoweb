@@ -254,11 +254,10 @@
 					</div>
 				{:else}
 					{#each posts as postData, i}
-						{@const globalIndex = currentPage * SIDEBAR_POSTS_COUNT + i}
 						{@const isSelected = getPostId(postData.post.uri) === postId}
 						<PostSidebarItem
 							{postData}
-							index={globalIndex}
+							index={i}
 							{isSelected}
 							onclick={selectPost}
 						/>
