@@ -1,5 +1,6 @@
 <script>
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import ThemeToggle from './ThemeToggle.svelte';
 
 	const tabs = [
@@ -17,7 +18,7 @@
 				<li>
 					<a
 						href={tab.href}
-						class:active={$page.url.pathname === tab.href || (tab.href === '/posts' && $page.url.pathname.startsWith('/posts'))}
+						class:active={$page.url.pathname.replace(/\/$/, '') === tab.href || (tab.href === '/posts' && $page.url.pathname.startsWith('/posts'))}
 						data-sveltekit-preload-data="hover"
 					>
 						<i class={tab.icon}></i> {tab.label}
