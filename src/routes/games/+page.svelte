@@ -59,3 +59,68 @@
 
 <hr>
 <Footer />
+
+<style>
+	.buttons-container {
+		text-align: center;
+		margin: 10px auto;
+	}
+
+	.game-content {
+		display: flex;
+		flex-direction: column;
+		padding: 20px;
+		text-align: left;
+		background-color: var(--color-tertiary);
+		border-radius: 10px;
+		margin: 20px;
+		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+		border: 1px solid var(--color-primary);
+	}
+
+	.project {
+		border: 2px solid var(--color-quinary);
+		border-radius: 15px;
+		padding: 20px;
+		margin: 10px 0;
+		height: 180px;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		background-color: var(--color-quaternary);
+	}
+
+	.project .title {
+		font-size: 20px;
+		font-weight: bold;
+	}
+
+	.project .text {
+		font-size: 14px;
+		margin: 10px 0;
+		flex: 1;
+		overflow: hidden;
+	}
+
+	.project .header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.project .metadata {
+		display: flex;
+		justify-content: end;
+		text-align: right;
+		gap: 10px;
+	}
+
+	.project .item {
+		font-size: 12px;
+		background-color: var(--color-secondary);
+		color: var(--color-quinary);
+		border-radius: 5px;
+		padding: 5px;
+		margin: 5px 0;
+	}
+</style>

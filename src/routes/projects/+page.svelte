@@ -42,7 +42,7 @@
 				</div>
 				<a class="link" href="https://yfrit.com" target="_blank">yfrit.com</a>
 			</div>
-			<div class="project" style="height: auto">
+			<div class="project expanded">
 				<div class="header">
 					<div class="title">FairFruit-Bot (Twitch Chat Plays)</div>
 				</div>
@@ -56,7 +56,7 @@
 					<br>
 					<p>Here's a video of it in action:</p>
 					<br>
-					<iframe width="560" height="315" style="max-width: 100%; padding-bottom: 10px;"
+					<iframe width="560" height="315" class="youtube-embed"
 						src="https://www.youtube-nocookie.com/embed/7gfgvar73L0?si=avbH3mQy6IRAO244"
 						title="YouTube video player" frameborder="0"
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -84,3 +84,60 @@
 
 <hr>
 <Footer />
+
+<style>
+	.project {
+		border: 2px solid var(--color-quinary);
+		border-radius: 15px;
+		padding: 20px;
+		margin: 10px 0;
+		height: 180px;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		background-color: var(--color-quaternary);
+	}
+
+	.project.expanded {
+		height: auto;
+	}
+
+	.project .title {
+		font-size: 20px;
+		font-weight: bold;
+	}
+
+	.project .text {
+		font-size: 14px;
+		margin: 10px 0;
+		flex: 1;
+		overflow: hidden;
+	}
+
+	.project .header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.project .metadata {
+		display: flex;
+		justify-content: end;
+		text-align: right;
+		gap: 10px;
+	}
+
+	.project .item {
+		font-size: 12px;
+		background-color: var(--color-secondary);
+		color: var(--color-quinary);
+		border-radius: 5px;
+		padding: 5px;
+		margin: 5px 0;
+	}
+
+	.youtube-embed {
+		max-width: 100%;
+		padding-bottom: 10px;
+	}
+</style>
