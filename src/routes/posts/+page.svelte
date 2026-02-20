@@ -1,12 +1,13 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { navigating } from '$app/stores';
+	import { page } from '$app/state';
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import PostMain from '$lib/components/post/PostMain.svelte';
 	import PostSidebarItem from '$lib/components/post/PostSidebarItem.svelte';
 	import FilterDialog from '$lib/components/FilterDialog.svelte';
-	import { SIDEBAR_POSTS_COUNT } from '$lib/features/bsky.js';
+	import { SIDEBAR_POSTS_COUNT, fetchPaginatedPosts, BSKY_HANDLE } from '$lib/features/bsky.js';
 	import {
 		formatDisplayDate,
 		convertToISO
@@ -35,17 +36,42 @@
 	let showFilterDialog = $state(false);
 	let isMobileSidebarOpen = $state(false);
 
-	$effect(() => {
-		posts = data.posts ?? [];
-		totalCount = data.totalCount ?? 0;
-		currentPage = data.currentPage ?? 0;
-		bskyError = data.error ?? '';
-		if (data.filters) {
-			filters.fromDate = data.filters.fromDate;
-			filters.toDate = data.filters.toDate;
-			filters.sortOrder = data.filters.sortOrder;
+	async function fetchPosts(page, newFilters) {
+		isLoading = true;
+		bskyError = '';
+
+		try {
+			const result = await fetchPaginatedPosts(BSKY_HANDLE, newFilters, page, fetch);
+			posts = result.posts;
+			totalCount = result.totalCount;
+			currentPage = result.currentPage;
+			filters = newFilters;
+		} catch (e) {
+			bskyError = `Failed to load posts: ${e instanceof Error ? e.message : String(e)}`;
+			posts = [];
+			totalCount = 0;
+		} finally {
+			isLoading = false;
 		}
-		isLoading = false;
+	}
+
+	$effect(() => {
+		currentPage = data.initialPage ?? 0;
+		filters.fromDate = data.initialFilters?.fromDate ?? '';
+		filters.toDate = data.initialFilters?.toDate ?? '';
+		filters.sortOrder = data.initialFilters?.sortOrder ?? 'newest';
+	});
+
+	let currentPageUrl = $derived(page.url);
+
+	$effect(() => {
+		const url = currentPageUrl;
+		const page = parseInt(url.searchParams.get('page') || '0', 10);
+		const fromDate = url.searchParams.get('from') ?? '';
+		const toDate = url.searchParams.get('to') ?? '';
+		const sortOrder = url.searchParams.get('sort') ?? 'newest';
+
+		fetchPosts(page, { fromDate, toDate, sortOrder });
 	});
 
 	let totalPages = $derived.by(() => Math.ceil(totalCount / SIDEBAR_POSTS_COUNT));
