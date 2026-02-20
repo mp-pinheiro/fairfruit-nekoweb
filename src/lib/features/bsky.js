@@ -3,17 +3,14 @@ export const BSKY_API_BASE = 'https://public.api.bsky.app/xrpc';
 export const POSTS_PER_PAGE = 50;
 export const SIDEBAR_POSTS_COUNT = 5;
 
-let postsCache = null;
-let cacheTime = 0;
 const CACHE_DURATION = 5 * 60 * 1000;
+const postsCache = new Map();
 
-export async function fetchPosts(handle, cursor, limit, fetchFn = fetch) {
-	const now = Date.now();
+function getCacheKey(filters) {
+	return `${filters.fromDate || ''}-${filters.toDate || ''}-${filters.sortOrder || 'newest'}`;
+}
 
-	if (postsCache && (now - cacheTime) < CACHE_DURATION) {
-		return postsCache;
-	}
-
+async function fetchRawPosts(handle, cursor, limit, fetchFn) {
 	const url = new URL(`${BSKY_API_BASE}/app.bsky.feed.getAuthorFeed`);
 	url.searchParams.set('actor', handle);
 	url.searchParams.set('filter', 'posts_no_replies');
@@ -30,12 +27,133 @@ export async function fetchPosts(handle, cursor, limit, fetchFn = fetch) {
 	if (!response.ok) {
 		throw new Error(`API error: ${response.status} ${response.statusText}`);
 	}
-	const data = await response.json();
+	return await response.json();
+}
 
-	postsCache = data;
-	cacheTime = now;
+export async function fetchPosts(handle, cursor, limit, fetchFn = fetch) {
+	const now = Date.now();
+	const cacheKey = 'all';
 
+	const cached = postsCache.get(cacheKey);
+	if (cached && (now - cached.time) < CACHE_DURATION) {
+		return cached.data;
+	}
+
+	const data = await fetchRawPosts(handle, cursor, limit, fetchFn);
+	postsCache.set(cacheKey, { data, time: now });
 	return data;
+}
+
+function applyDateFilters(posts, fromDate, toDate) {
+	const parseDateISO = (isoString) => {
+		if (!isoString || isoString.length !== 10) return null;
+		const parts = isoString.split('-');
+		if (parts.length !== 3) return null;
+		const [yearStr, monthStr, dayStr] = parts;
+		if (yearStr.length !== 4 || monthStr.length !== 2 || dayStr.length !== 2) return null;
+
+		const year = parseInt(yearStr, 10);
+		const month = parseInt(monthStr, 10);
+		const day = parseInt(dayStr, 10);
+
+		if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+		if (day < 1 || day > 31) return null;
+		if (month < 1 || month > 12) return null;
+		if (year < 1900 || year > 9999) return null;
+
+		const date = new Date(year, month - 1, day);
+		if (date.getDate() !== day) return null;
+		return date;
+	};
+
+	let result = [...posts];
+
+	if (fromDate) {
+		const from = parseDateISO(fromDate);
+		if (from) {
+			result = result.filter(item => {
+				const postDate = new Date(item.post.record.createdAt);
+				return postDate >= from;
+			});
+		}
+	}
+
+	if (toDate) {
+		const to = parseDateISO(toDate);
+		if (to) {
+			to.setHours(23, 59, 59);
+			result = result.filter(item => {
+				const postDate = new Date(item.post.record.createdAt);
+				return postDate <= to;
+			});
+		}
+	}
+
+	return result;
+}
+
+function sortPosts(posts, sortOrder) {
+	const result = [...posts];
+	result.sort((a, b) => {
+		const dateA = new Date(a.post.record.createdAt);
+		const dateB = new Date(b.post.record.createdAt);
+		return sortOrder === 'newest' ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
+	});
+	return result;
+}
+
+export async function fetchPaginatedPosts(handle, filters, page, fetchFn = fetch) {
+	const cacheKey = getCacheKey(filters);
+	const now = Date.now();
+
+	const cached = postsCache.get(cacheKey);
+	if (cached && (now - cached.time) < CACHE_DURATION) {
+		const { filteredPosts } = cached.data;
+		const startIndex = page * SIDEBAR_POSTS_COUNT;
+		const pagePosts = filteredPosts.slice(startIndex, startIndex + SIDEBAR_POSTS_COUNT);
+		return {
+			posts: pagePosts,
+			totalCount: filteredPosts.length,
+			currentPage: page
+		};
+	}
+
+	let allPosts = [];
+	let cursor = null;
+	const BATCH_SIZE = 50;
+	const maxBatches = 15;
+	let batchesFetched = 0;
+
+	while (batchesFetched < maxBatches) {
+		const data = await fetchRawPosts(handle, cursor, BATCH_SIZE, fetchFn);
+		const feedItems = data.feed || [];
+
+		const posts = feedItems.filter(item => !item.reason);
+		allPosts.push(...posts);
+
+		if (!data.cursor) break;
+		cursor = data.cursor;
+		batchesFetched++;
+	}
+
+	const parsedPosts = allPosts.map(item => ({ ...item, ...parsePost(item.post) }));
+
+	let filteredPosts = applyDateFilters(parsedPosts, filters.fromDate, filters.toDate);
+	filteredPosts = sortPosts(filteredPosts, filters.sortOrder);
+
+	postsCache.set(cacheKey, {
+		data: { filteredPosts },
+		time: now
+	});
+
+	const startIndex = page * SIDEBAR_POSTS_COUNT;
+	const pagePosts = filteredPosts.slice(startIndex, startIndex + SIDEBAR_POSTS_COUNT);
+
+	return {
+		posts: pagePosts,
+		totalCount: filteredPosts.length,
+		currentPage: page
+	};
 }
 
 export function formatDate(isoString) {
