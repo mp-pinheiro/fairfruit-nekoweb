@@ -1,5 +1,5 @@
 <script>
-	import { escapeHtml, createPostLink, formatDate } from '$lib/features/bsky.js';
+	import { createPostLink, formatDate, formatPostText } from '$lib/features/bsky.js';
 
 	let { postData, index, isSelected = false, onclick } = $props();
 
@@ -10,6 +10,7 @@
 	let postUrl = $derived(post?.uri ? createPostLink(post.uri) : '');
 	let postUrlDisplay = $derived(postUrl.split('/post/')[1] || postUrl);
 	let displayText = $derived(text.length > 150 ? text.substring(0, 150) + '...' : text);
+	let formattedText = $derived(formatPostText(displayText));
 </script>
 
 <div
@@ -26,7 +27,7 @@
 		</div>
 	</div>
 	<div class="text">
-		<p>{escapeHtml(displayText)}</p>
+		{@html formattedText}
 	</div>
 	<div class="metadata">
 		<div class="item date">{date}</div>
@@ -45,6 +46,8 @@
 		display: flex;
 		flex-direction: column;
 		background-color: var(--color-quaternary);
+		width: 100%;
+		box-sizing: border-box;
 	}
 
 	.post:hover {
