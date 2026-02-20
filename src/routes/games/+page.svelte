@@ -1,6 +1,7 @@
 <script>
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import GameCard from '$lib/components/GameCard.svelte';
 </script>
 
 <svelte:head>
@@ -24,19 +25,8 @@
 			<p>If not, you should
 				still do it because <a href="https://store.steampowered.com/app/752600/Dual_Snake/">snek 🐍.</a></p>
 			<div class="buttons-container">
-				<div class="link-container">
-					<a class="links links-red" href="https://store.steampowered.com/app/752600/Dual_Snake/" target="_blank">Dual Snake</a>
-					<div class="iframe-popup dual-snake">
-						<iframe src="https://store.steampowered.com/widget/752600/" frameborder="0" width="646" height="190" title="Steam store widget for Dual Snake"></iframe>
-					</div>
-				</div>
-
-				<div class="link-container">
-					<a class="links links-purple" href="https://store.steampowered.com/app/1397130/Primateria/" target="_blank">Primateria</a>
-					<div class="iframe-popup primateria">
-						<iframe src="https://store.steampowered.com/widget/1397130/" frameborder="0" width="646" height="190" title="Steam store widget for Primateria"></iframe>
-					</div>
-				</div>
+				<GameCard title="Dual Snake" url="https://store.steampowered.com/app/752600/Dual_Snake/" colorClass="links-red" steamAppId="752600" />
+				<GameCard title="Primateria" url="https://store.steampowered.com/app/1397130/Primateria/" colorClass="links-purple" steamAppId="1397130" />
 			</div>
 			<br>
 			<h3>Jam Games</h3>

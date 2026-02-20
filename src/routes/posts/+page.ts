@@ -1,4 +1,4 @@
-import { fetchPosts, BSKY_HANDLE, POSTS_PER_PAGE, SIDEBAR_POSTS_COUNT } from '$lib/features/bsky.js';
+import { fetchPosts, BSKY_HANDLE, POSTS_PER_PAGE, SIDEBAR_POSTS_COUNT, parsePost } from '$lib/features/bsky.js';
 
 export const prerender = false;
 
@@ -10,7 +10,9 @@ export async function load({ url, fetch }) {
 
 	try {
 		const data = await fetchPosts(BSKY_HANDLE, null, POSTS_PER_PAGE, fetch);
-		const allPosts = data.feed.filter(item => !item.reason);
+		const allPosts = data.feed
+			.filter(item => !item.reason)
+			.map(item => ({ ...item, ...parsePost(item.post) }));
 
 		return {
 			allPosts,
