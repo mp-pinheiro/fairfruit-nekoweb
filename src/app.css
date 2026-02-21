@@ -203,6 +203,11 @@ section[data-content="posts"] {
         height: auto;
         min-height: 60vh;
     }
+
+    #bsky-posts-feed {
+        overflow: hidden;
+        position: relative;
+    }
 }
 
 @media (max-width: 768px) {
