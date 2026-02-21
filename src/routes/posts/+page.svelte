@@ -7,7 +7,9 @@
 	import PostMain from '$lib/components/post/PostMain.svelte';
 	import PostSidebarItem from '$lib/components/post/PostSidebarItem.svelte';
 	import FilterDialog from '$lib/components/FilterDialog.svelte';
+	import SwipeableCard from '$lib/components/SwipeableCard.svelte';
 	import { SIDEBAR_POSTS_COUNT, fetchPaginatedPosts, BSKY_HANDLE } from '$lib/features/bsky.js';
+	import gsap from 'gsap';
 	import {
 		formatDisplayDate,
 		convertToISO
@@ -22,6 +24,8 @@
 	let bskyError = $state('');
 	let isLoading = $state(true);
 	let postId = $state('');
+	let swipeableCardRef = $state(null);
+	let swipeDirection = $state('left');
 
 	let filters = $state({
 		fromDate: '',
@@ -100,7 +104,7 @@
 	let hasNext = $derived.by(() => (currentPage + 1) * SIDEBAR_POSTS_COUNT < totalCount);
 	let listSelectedPost = $derived.by(() => posts[0] ?? null);
 
-	function selectPost(index) {
+	function selectPost(index, closeSidebar = true) {
 		const post = posts[index];
 		if (!post) return;
 		const uri = post.post.uri;
@@ -114,7 +118,7 @@
 			if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
 			const queryString = params.toString();
 			goto(queryString ? `/posts?${queryString}` : `/posts?post=${match[1]}`);
-			if (window.innerWidth <= 1024) {
+			if (closeSidebar && window.innerWidth <= 1024) {
 				toggleSidebar();
 				window.scrollTo({ top: 0, behavior: 'smooth' });
 			}
@@ -225,6 +229,45 @@
 	});
 
 	let displayPost = $derived.by(() => view === 'single' ? selectedPost : listSelectedPost);
+	let currentPostIndex = $derived.by(() => {
+		if (view !== 'single' || !postId) return -1;
+		return posts.findIndex(p => getPostId(p.post.uri) === postId);
+	});
+
+	let isMobile = $state(false);
+
+	$effect(() => {
+		const updateMobile = () => {
+			isMobile = window.innerWidth <= 1024;
+		};
+
+		updateMobile();
+		window.addEventListener('resize', updateMobile);
+
+		return () => window.removeEventListener('resize', updateMobile);
+	});
+
+	function handleSwipeNext() {
+		swipeDirection = 'left';
+		if (currentPostIndex < posts.length - 1) {
+			selectPost(currentPostIndex + 1, false);
+		} else if (hasNext) {
+			nextPage();
+		} else if (swipeableCardRef) {
+			swipeableCardRef.shake();
+		}
+	}
+
+	function handleSwipePrev() {
+		swipeDirection = 'right';
+		if (currentPostIndex > 0) {
+			selectPost(currentPostIndex - 1, false);
+		} else if (hasPrev) {
+			prevPage();
+		} else if (swipeableCardRef) {
+			swipeableCardRef.shake();
+		}
+	}
 </script>
 
 <svelte:head>
@@ -273,7 +316,15 @@
 						</div>
 					</div>
 				{:else if displayPost}
-					<PostMain postData={displayPost} />
+					<SwipeableCard
+						bind:this={swipeableCardRef}
+						onSwipeNext={handleSwipeNext}
+						onSwipePrev={handleSwipePrev}
+						disabled={!isMobile}
+						entryDirection={swipeDirection}
+					>
+						<PostMain postData={displayPost} />
+					</SwipeableCard>
 				{:else if view === 'single'}
 					<div class="error-message">Post not found</div>
 				{/if}
