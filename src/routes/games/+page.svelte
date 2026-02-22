@@ -27,7 +27,7 @@
 			<div class="buttons-container">
 				<GameCard title="Dual Snake" url="https://store.steampowered.com/app/752600/Dual_Snake/" colorClass="links-red" steamAppId="752600" />
 				<GameCard title="Primateria" url="https://store.steampowered.com/app/1397130/Primateria/" colorClass="links-purple" steamAppId="1397130" />
-				<GameCard title="Primateria: Reburn" url="https://store.steampowered.com/app/3725470/Primateria_Reburn/" colorClass="links-green" steamAppId="3725470" />
+				<GameCard title="Reburn" url="https://store.steampowered.com/app/3725470/Primateria_Reburn/" colorClass="links-green" steamAppId="3725470" />
 			</div>
 			<br>
 			<h3>Jam Games</h3>
