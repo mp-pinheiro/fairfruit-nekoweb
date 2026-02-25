@@ -49,7 +49,7 @@ export async function load({ url, fetch }: { url: URL; fetch: any }) {
 	const page = pageParam ? parseInt(pageParam, 10) || 0 : 0;
 	const fromDate = url.searchParams.get('from') ?? '';
 	const toDate = url.searchParams.get('to') ?? '';
-	const sortOrder = url.searchParams.get('sort') ?? 'newest';
+	const sortOrder = url.searchParams.get('sort') ?? 'latest';
 
 	const filters = { fromDate, toDate, sortOrder };
 

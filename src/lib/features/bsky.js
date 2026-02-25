@@ -7,7 +7,7 @@ const CACHE_DURATION = 5 * 60 * 1000;
 const postsCache = new Map();
 
 function getCacheKey(filters) {
-	return `${filters.fromDate || ''}-${filters.toDate || ''}-${filters.sortOrder || 'newest'}`;
+	return `${filters.fromDate || ''}-${filters.toDate || ''}-${filters.sortOrder || 'latest'}`;
 }
 
 async function fetchRawPosts(handle, cursor, limit, fetchFn) {
@@ -97,7 +97,7 @@ function sortPosts(posts, sortOrder) {
 	result.sort((a, b) => {
 		const dateA = new Date(a.post.record.createdAt);
 		const dateB = new Date(b.post.record.createdAt);
-		return sortOrder === 'newest' ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
+		return sortOrder === 'latest' ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
 	});
 	return result;
 }
