@@ -30,13 +30,13 @@
 	let filters = $state({
 		fromDate: '',
 		toDate: '',
-		sortOrder: 'newest'
+		sortOrder: 'latest'
 	});
 
 	let tempFilters = $state({
 		fromDate: '',
 		toDate: '',
-		sortOrder: 'newest'
+		sortOrder: 'latest'
 	});
 
 	let showFilterDialog = $state(false);
@@ -68,7 +68,7 @@
 			currentPage = data.initialPage ?? 0;
 			filters.fromDate = data.initialFilters?.fromDate ?? '';
 			filters.toDate = data.initialFilters?.toDate ?? '';
-			filters.sortOrder = data.initialFilters?.sortOrder ?? 'newest';
+			filters.sortOrder = data.initialFilters?.sortOrder ?? 'latest';
 		} else {
 			posts = data.posts ?? [];
 			selectedPost = data.selectedPost ?? null;
@@ -93,7 +93,7 @@
 			const page = parseInt(url.searchParams.get('page') || '0', 10);
 			const fromDate = url.searchParams.get('from') ?? '';
 			const toDate = url.searchParams.get('to') ?? '';
-			const sortOrder = url.searchParams.get('sort') ?? 'newest';
+			const sortOrder = url.searchParams.get('sort') ?? 'latest';
 
 			fetchPosts(page, { fromDate, toDate, sortOrder });
 		}
@@ -115,7 +115,7 @@
 			params.set('page', currentPage.toString());
 			if (filters.fromDate) params.set('from', filters.fromDate);
 			if (filters.toDate) params.set('to', filters.toDate);
-			if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
+			if (filters.sortOrder !== 'latest') params.set('sort', filters.sortOrder);
 			const queryString = params.toString();
 			goto(queryString ? `/posts?${queryString}` : `/posts?post=${match[1]}`);
 			if (closeSidebar && window.innerWidth <= 1024) {
@@ -135,7 +135,7 @@
 			params.set('page', newPage.toString());
 			if (filters.fromDate) params.set('from', filters.fromDate);
 			if (filters.toDate) params.set('to', filters.toDate);
-			if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
+			if (filters.sortOrder !== 'latest') params.set('sort', filters.sortOrder);
 			const queryString = params.toString();
 			goto(queryString ? `/posts?${queryString}` : '/posts', { keepFocus: true });
 		}
@@ -151,7 +151,7 @@
 			params.set('page', newPage.toString());
 			if (filters.fromDate) params.set('from', filters.fromDate);
 			if (filters.toDate) params.set('to', filters.toDate);
-			if (filters.sortOrder !== 'newest') params.set('sort', filters.sortOrder);
+			if (filters.sortOrder !== 'latest') params.set('sort', filters.sortOrder);
 			const queryString = params.toString();
 			goto(queryString ? `/posts?${queryString}` : '/posts', { keepFocus: true });
 		}
@@ -163,13 +163,13 @@
 	}
 
 	function hasActiveFilters() {
-		return filters.fromDate !== '' || filters.toDate !== '' || filters.sortOrder !== 'newest';
+		return filters.fromDate !== '' || filters.toDate !== '' || filters.sortOrder !== 'latest';
 	}
 
 	function handleFilterReset() {
 		tempFilters.fromDate = '';
 		tempFilters.toDate = '';
-		tempFilters.sortOrder = 'newest';
+		tempFilters.sortOrder = 'latest';
 		showFilterDialog = false;
 		if (view === 'single') {
 			const params = new URLSearchParams();
@@ -200,7 +200,7 @@
 		}
 		if (fromDate) params.set('from', fromDate);
 		if (toDate) params.set('to', toDate);
-		if (sortOrder !== 'newest') params.set('sort', sortOrder);
+		if (sortOrder !== 'latest') params.set('sort', sortOrder);
 		const queryString = params.toString();
 		goto(queryString ? `/posts?${queryString}` : '/posts');
 	}

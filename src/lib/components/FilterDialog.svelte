@@ -12,14 +12,14 @@
 	let tempFilters = $state({
 		fromDate: '',
 		toDate: '',
-		sortOrder: 'newest'
+		sortOrder: 'latest'
 	});
 
 	$effect(() => {
 		if (show) {
 			tempFilters.fromDate = filters.fromDate ? filters.fromDate : '';
 			tempFilters.toDate = filters.toDate ? filters.toDate : '';
-			tempFilters.sortOrder = filters.sortOrder;
+			tempFilters.sortOrder = filters.sortOrder || 'latest';
 		}
 	});
 
@@ -36,7 +36,7 @@
 	function handleReset() {
 		tempFilters.fromDate = '';
 		tempFilters.toDate = '';
-		tempFilters.sortOrder = 'newest';
+		tempFilters.sortOrder = 'latest';
 		onReset();
 	}
 </script>
@@ -84,8 +84,8 @@
 			<div class="form-group">
 				<label for="sort-order">Sort By</label>
 				<select id="sort-order" bind:value={tempFilters.sortOrder}>
-					<option value="newest">Newest First</option>
-					<option value="oldest">Oldest First</option>
+					<option value="latest">Latest</option>
+					<option value="top">Top</option>
 				</select>
 			</div>
 
