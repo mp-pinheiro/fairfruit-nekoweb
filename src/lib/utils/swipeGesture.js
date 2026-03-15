@@ -1,6 +1,7 @@
 export function createSwipeGesture({
 	threshold = 80,
 	velocityThreshold = 0.3,
+	dragStartThreshold = 12,
 	onSwipeStart = () => {},
 	onSwipeMove = () => {},
 	onSwipeEnd = () => {}
@@ -9,13 +10,14 @@ export function createSwipeGesture({
 	let startY = 0;
 	let startTime = 0;
 	let isDragging = false;
+	let hasCommittedToDrag = false;
 
 	function start(clientX, clientY) {
 		startX = clientX;
 		startY = clientY;
 		startTime = Date.now();
 		isDragging = true;
-		onSwipeStart();
+		hasCommittedToDrag = false;
 	}
 
 	function move(clientX, clientY) {
@@ -24,7 +26,16 @@ export function createSwipeGesture({
 		const deltaX = clientX - startX;
 		const deltaY = clientY - startY;
 
-		onSwipeMove(deltaX, deltaY);
+		if (!hasCommittedToDrag) {
+			if (Math.abs(deltaX) > dragStartThreshold && Math.abs(deltaX) > Math.abs(deltaY)) {
+				hasCommittedToDrag = true;
+				onSwipeStart();
+			}
+		}
+
+		if (hasCommittedToDrag) {
+			onSwipeMove(deltaX, deltaY);
+		}
 
 		return { deltaX, deltaY };
 	}
@@ -39,6 +50,7 @@ export function createSwipeGesture({
 		const velocity = Math.abs(deltaX) / (duration || 1);
 
 		isDragging = false;
+		hasCommittedToDrag = false;
 
 		const meetsThreshold = Math.abs(deltaX) >= threshold || velocity >= velocityThreshold;
 
@@ -62,6 +74,7 @@ export function createSwipeGesture({
 
 	function cancel() {
 		isDragging = false;
+		hasCommittedToDrag = false;
 	}
 
 	return {

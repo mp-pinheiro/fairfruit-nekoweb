@@ -65,6 +65,8 @@
 	nav ul li {
 		font-size: 1.2rem;
 		transition: all 0.2s ease-in-out;
+		min-width: 3.5rem;
+		text-align: center;
 	}
 
 	nav ul li:hover {
