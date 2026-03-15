@@ -16,6 +16,15 @@
 			<h2>Projects</h2>
 			<div class="project">
 				<div class="header">
+					<div class="title">Persona 3 Reload Save Editor</div>
+				</div>
+				<div class="text">
+					<p>A browser-based save editor for Persona 3 Reload. Edit character info, social stats, social links, party members, and more. Runs entirely in the browser -- your save data never leaves your device.</p>
+				</div>
+				<a class="link" href="https://p3rsave.fairfruit.tv" target="_blank">p3rsave.fairfruit.tv</a>
+			</div>
+			<div class="project">
+				<div class="header">
 					<div class="title">Nekoweb API Docs</div>
 				</div>
 				<div class="text">
@@ -66,15 +75,6 @@
 					<a class="link" href="https://github.com/mp-pinheiro/FairFruit-Bot" target="_blank">
 						github.com/mp-pinheiro/FairFruit-Bot</a>
 				</div>
-			</div>
-			<div class="project">
-				<div class="header">
-					<div class="title">Persona 3 Reload Save Editor</div>
-				</div>
-				<div class="text">
-					<p>A browser-based save editor for Persona 3 Reload. Edit character info, social stats, social links, party members, and more. Runs entirely in the browser -- your save data never leaves your device.</p>
-				</div>
-				<a class="link" href="https://p3rsave.fairfruit.tv" target="_blank">p3rsave.fairfruit.tv</a>
 			</div>
 			<div class="project">
 				<div class="header">
