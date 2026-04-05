@@ -4,3 +4,14 @@ build
 .env
 .vscode
 CLAUDE.md
+.bash_profile
+.bashrc
+.claude/
+.gitconfig
+.gitmodules
+.idea
+.mcp.json
+.profile
+.ripgreprc
+.zprofile
+.zshrc
