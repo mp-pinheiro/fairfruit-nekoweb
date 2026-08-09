@@ -48,6 +48,6 @@ jobs:
         API_KEY: ${{ secrets.NEKOWEB_API_KEY }}
         BUILD_DIR: './build'
         DEPLOY_DIR: '/fairfruit.nekoweb.org'
-        CLEANUP: 'False'
+        CLEANUP: 'True'
         NEKOWEB_PAGENAME: 'fairfruit'
         ENCRYPTION_KEY: ${{ secrets.NEKOWEB_ENCRYPTION_KEY }}
