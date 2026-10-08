@@ -28,7 +28,7 @@ jobs:
         run: bun run build
       - name: Publish Pages branch
         run: |
-          git config user.name "Forgejo Actions"
+          git config user.name "fairfruit"
           git config user.email "17935077+mp-pinheiro@users.noreply.github.com"
           export GIT_INDEX_FILE="$RUNNER_TEMP/pages-index"
           git -C build --git-dir="$GITHUB_WORKSPACE/.git" --work-tree=. add --all
@@ -36,11 +36,14 @@ jobs:
           commit="$(printf 'chore(pages): deploy %s\n' "$GITHUB_SHA" | git commit-tree "$tree")"
           git push origin "+$commit:refs/heads/gh-pages"
       - name: Deploy to Nekoweb
-        uses: mp-pinheiro/nekoweb-deploy@0.3.1
-        with:
-          API_KEY: ${{ secrets.NEKOWEB_API_KEY }}
-          BUILD_DIR: './build'
-          DEPLOY_DIR: '/fairfruit.nekoweb.org'
-          CLEANUP: 'True'
-          NEKOWEB_PAGENAME: 'fairfruit'
-          ENCRYPTION_KEY: ${{ secrets.NEKOWEB_ENCRYPTION_KEY }}
+        env:
+          NEKOWEB_API_KEY: ${{ secrets.NEKOWEB_API_KEY }}
+          NEKOWEB_ENCRYPTION_KEY: ${{ secrets.NEKOWEB_ENCRYPTION_KEY }}
+        run: |
+          git clone https://github.com/mp-pinheiro/nekoweb-deploy.git "$RUNNER_TEMP/nekoweb-deploy"
+          git -C "$RUNNER_TEMP/nekoweb-deploy" checkout 0.3.1
+          python3 -m venv --without-pip "$RUNNER_TEMP/nekoweb-venv"
+          python3 -m pip --python "$RUNNER_TEMP/nekoweb-venv" install -r "$RUNNER_TEMP/nekoweb-deploy/requirements.txt"
+          "$RUNNER_TEMP/nekoweb-venv/bin/python" "$RUNNER_TEMP/nekoweb-deploy/deploy.py" \
+            "$NEKOWEB_API_KEY" ./build /fairfruit.nekoweb.org True fairfruit \
+            --encryption-key "$NEKOWEB_ENCRYPTION_KEY"
