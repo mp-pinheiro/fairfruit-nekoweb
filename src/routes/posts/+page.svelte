@@ -13,6 +13,7 @@
 	let posts = $state([]);
 	let selectedPost = $state(null);
 	let totalCount = $state(null);
+	let knownCount = $state(0);
 	let currentPage = $state(0);
 	let bskyError = $state('');
 	let isLoading = $state(true);
@@ -44,12 +45,14 @@
 		posts = [];
 		selectedPost = null;
 		totalCount = null;
+		knownCount = 0;
 		bskyError = '';
 		isLoading = true;
 		const update = (result) => {
 			if (version !== requestVersion) return;
 			posts = result.posts;
 			totalCount = result.complete ? result.totalCount : null;
+			knownCount = result.totalCount;
 			currentPage = result.currentPage;
 			if (result.selectedPost) selectedPost = result.selectedPost;
 			if (result.ready) isLoading = false;
@@ -73,7 +76,7 @@
 
 	let totalPages = $derived(totalCount === null ? null : Math.ceil(totalCount / SIDEBAR_POSTS_COUNT));
 	let hasPrev = $derived(currentPage > 0);
-	let hasNext = $derived(!isLoading && !bskyError && (totalCount === null || (currentPage + 1) * SIDEBAR_POSTS_COUNT < totalCount));
+	let hasNext = $derived(!isLoading && !bskyError && (currentPage + 1) * SIDEBAR_POSTS_COUNT < knownCount);
 	let listSelectedPost = $derived(posts[0] ?? null);
 
 	function selectPost(index, closeSidebar = true) {

@@ -15,7 +15,7 @@ bun run preview  # preview built site
 
 ## Posts
 
-The first usable page renders after its Bluesky batch arrives. The remaining archive loads in the background, and pagination shows `loading...` until the page total is known. Pages, filters and individual-post links share the same five-minute author-feed cache.
+The first usable page renders after its Bluesky batch arrives. The remaining archive loads in the background, and pagination shows `loading...` until the page total is known. Next becomes available when another page of matching posts has arrived. Pages, filters and individual-post links share the same five-minute author-feed cache.
 
 Date filters include both boundary days. Latest retains newest-first order, and Top retains its existing oldest-first order. The sidebar has five posts per page and excludes reposts. The archive retains its existing limit of 750 raw feed entries.
 
