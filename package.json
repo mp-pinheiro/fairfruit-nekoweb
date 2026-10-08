@@ -15,10 +15,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/mp-pinheiro/fairfruit-nekoweb/issues"
-  },
-  "homepage": "https://github.com/mp-pinheiro/fairfruit-nekoweb#readme",
+  "homepage": "https://fairfruit.tv",
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.52.2",

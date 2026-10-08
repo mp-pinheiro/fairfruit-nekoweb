@@ -112,6 +112,7 @@
 			duration: 0.35,
 			ease: 'power2.in',
 			onComplete: () => {
+				isAnimating = false;
 				if (direction === 'left') {
 					onSwipeNext();
 				} else {
@@ -124,6 +125,7 @@
 	export function shake() {
 		if (isAnimating) return;
 		isAnimating = true;
+		gsap.set(cardElement, { x: 0, rotation: 0, opacity: 1, scale: 1 });
 
 		gsap.to(cardElement, {
 			x: '+=10',

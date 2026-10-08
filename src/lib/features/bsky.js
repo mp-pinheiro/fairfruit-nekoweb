@@ -1,94 +1,36 @@
+import { parseDateISO } from './postFilters.js';
+
 export const BSKY_HANDLE = 'fairfruit.tv';
 export const BSKY_API_BASE = 'https://public.api.bsky.app/xrpc';
-export const POSTS_PER_PAGE = 50;
 export const SIDEBAR_POSTS_COUNT = 5;
 
 const CACHE_DURATION = 5 * 60 * 1000;
-const postsCache = new Map();
-
-function getCacheKey(filters) {
-	return `${filters.fromDate || ''}-${filters.toDate || ''}-${filters.sortOrder || 'latest'}`;
-}
+const feeds = new Map();
 
 async function fetchRawPosts(handle, cursor, limit, fetchFn) {
 	const url = new URL(`${BSKY_API_BASE}/app.bsky.feed.getAuthorFeed`);
 	url.searchParams.set('actor', handle);
 	url.searchParams.set('filter', 'posts_no_replies');
 	url.searchParams.set('limit', limit.toString());
-	if (cursor) {
-		url.searchParams.set('cursor', cursor);
-	}
-
-	const response = await fetchFn(url.toString(), {
-		headers: {
-			'Cache-Control': 'max-age=300'
-		}
-	});
-	if (!response.ok) {
-		throw new Error(`API error: ${response.status} ${response.statusText}`);
-	}
+	if (cursor) url.searchParams.set('cursor', cursor);
+	const response = await fetchFn(url.toString());
+	if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`);
 	return await response.json();
 }
 
-export async function fetchPosts(handle, cursor, limit, fetchFn = fetch) {
-	const now = Date.now();
-	const cacheKey = 'all';
-
-	const cached = postsCache.get(cacheKey);
-	if (cached && (now - cached.time) < CACHE_DURATION) {
-		return cached.data;
-	}
-
-	const data = await fetchRawPosts(handle, cursor, limit, fetchFn);
-	postsCache.set(cacheKey, { data, time: now });
-	return data;
-}
-
 function applyDateFilters(posts, fromDate, toDate) {
-	const parseDateISO = (isoString) => {
-		if (!isoString || isoString.length !== 10) return null;
-		const parts = isoString.split('-');
-		if (parts.length !== 3) return null;
-		const [yearStr, monthStr, dayStr] = parts;
-		if (yearStr.length !== 4 || monthStr.length !== 2 || dayStr.length !== 2) return null;
-
-		const year = parseInt(yearStr, 10);
-		const month = parseInt(monthStr, 10);
-		const day = parseInt(dayStr, 10);
-
-		if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
-		if (day < 1 || day > 31) return null;
-		if (month < 1 || month > 12) return null;
-		if (year < 1900 || year > 9999) return null;
-
-		const date = new Date(year, month - 1, day);
-		if (date.getDate() !== day) return null;
-		return date;
-	};
-
-	let result = [...posts];
-
+	let result = posts;
 	if (fromDate) {
 		const from = parseDateISO(fromDate);
-		if (from) {
-			result = result.filter(item => {
-				const postDate = new Date(item.post.record.createdAt);
-				return postDate >= from;
-			});
-		}
+		if (from) result = result.filter(item => new Date(item.post.record.createdAt) >= from);
 	}
-
 	if (toDate) {
 		const to = parseDateISO(toDate);
 		if (to) {
-			to.setHours(23, 59, 59);
-			result = result.filter(item => {
-				const postDate = new Date(item.post.record.createdAt);
-				return postDate <= to;
-			});
+			to.setHours(23, 59, 59, 999);
+			result = result.filter(item => new Date(item.post.record.createdAt) <= to);
 		}
 	}
-
 	return result;
 }
 
@@ -102,59 +44,94 @@ function sortPosts(posts, sortOrder) {
 	return result;
 }
 
-export async function fetchPaginatedPosts(handle, filters, page, fetchFn = fetch) {
-	const cacheKey = getCacheKey(filters);
-	const now = Date.now();
-
-	const cached = postsCache.get(cacheKey);
-	if (cached && (now - cached.time) < CACHE_DURATION) {
-		const { filteredPosts } = cached.data;
-		const startIndex = page * SIDEBAR_POSTS_COUNT;
-		const pagePosts = filteredPosts.slice(startIndex, startIndex + SIDEBAR_POSTS_COUNT);
-		return {
-			posts: pagePosts,
-			totalCount: filteredPosts.length,
-			currentPage: page
-		};
-	}
-
-	let allPosts = [];
-	let cursor = null;
-	const BATCH_SIZE = 50;
-	const maxBatches = 15;
-	let batchesFetched = 0;
-
-	while (batchesFetched < maxBatches) {
-		const data = await fetchRawPosts(handle, cursor, BATCH_SIZE, fetchFn);
-		const feedItems = data.feed || [];
-
-		const posts = feedItems.filter(item => !item.reason);
-		allPosts.push(...posts);
-
-		if (!data.cursor) break;
-		cursor = data.cursor;
-		batchesFetched++;
-	}
-
-	const parsedPosts = allPosts.map(item => ({ ...item, ...parsePost(item.post) }));
-
-	let filteredPosts = applyDateFilters(parsedPosts, filters.fromDate, filters.toDate);
-	filteredPosts = sortPosts(filteredPosts, filters.sortOrder);
-
-	postsCache.set(cacheKey, {
-		data: { filteredPosts },
-		time: now
-	});
-
+function resultFor(feed, filters, page, postId) {
+	const all = sortPosts(applyDateFilters(feed.items, filters.fromDate, filters.toDate), filters.sortOrder);
+	const postIndex = postId ? all.findIndex(item => item.post.uri.split('/').pop() === postId) : -1;
 	const startIndex = page * SIDEBAR_POSTS_COUNT;
-	const pagePosts = filteredPosts.slice(startIndex, startIndex + SIDEBAR_POSTS_COUNT);
-
+	const posts = all.slice(startIndex, startIndex + SIDEBAR_POSTS_COUNT)
+		.map(item => ({ ...item, ...parsePost(item.post) }));
+	const selectedPost = postIndex < 0 ? null : (
+		posts[postIndex - startIndex] ?? { ...all[postIndex], ...parsePost(all[postIndex].post) }
+	);
+	const pageReady = posts.length === SIDEBAR_POSTS_COUNT || feed.complete;
+	const ready = (filters.sortOrder === 'latest' ? pageReady : feed.complete) &&
+		(!postId || selectedPost !== null || feed.complete);
 	return {
-		posts: pagePosts,
-		totalCount: filteredPosts.length,
-		currentPage: page
+		posts,
+		totalCount: all.length,
+		currentPage: page,
+		selectedPost,
+		postPage: postIndex < 0 ? null : Math.floor(postIndex / SIDEBAR_POSTS_COUNT),
+		complete: feed.complete,
+		ready
 	};
 }
+
+function startFeed(feed, fetchFn) {
+	if (feed.loading || feed.complete) return;
+	feed.loading = true;
+	(async () => {
+		let cursor = null;
+		for (let batch = 0; batch < 15 && feed.rawCount < 750; batch++) {
+			const remaining = 750 - feed.rawCount;
+			const data = await fetchRawPosts(feed.handle, cursor, Math.min(100, remaining), fetchFn);
+			const accepted = (data.feed || []).slice(0, remaining);
+			feed.rawCount += accepted.length;
+			feed.items.push(...accepted.filter(item => !item.reason));
+			feed.complete = !data.cursor || feed.rawCount >= 750 || batch === 14;
+			if (feed.complete) feed.completedAt = Date.now();
+			feed.notify();
+			if (feed.complete) break;
+			cursor = data.cursor;
+		}
+	})().catch(error => {
+		feed.error = error;
+		if (feeds.get(feed.handle) === feed) feeds.delete(feed.handle);
+		feed.notify();
+	}).finally(() => {
+		feed.loading = false;
+	});
+}
+
+export function fetchPaginatedPosts(handle, filters, page, fetchFn = fetch, options = {}) {
+	let feed = feeds.get(handle);
+	if (feed && feed.complete && Date.now() - feed.completedAt >= CACHE_DURATION) {
+		feeds.delete(handle);
+		feed = null;
+	}
+	if (!feed) {
+		feed = {
+			handle, items: [], rawCount: 0, complete: false, completedAt: 0,
+			loading: false, listeners: new Set(), error: null,
+			notify() { for (const listener of this.listeners) listener(); }
+		};
+		feeds.set(handle, feed);
+	}
+	return new Promise((resolve, reject) => {
+		const update = () => {
+			if (feed.error) {
+				feed.listeners.delete(update);
+				reject(feed.error);
+				return;
+			}
+			try {
+				const result = resultFor(feed, filters, page, options.postId);
+				options.onProgress?.(result);
+				if (feed.complete) {
+					feed.listeners.delete(update);
+					resolve(result);
+				}
+			} catch (error) {
+				feed.listeners.delete(update);
+				reject(error);
+			}
+		};
+		feed.listeners.add(update);
+		update();
+		startFeed(feed, fetchFn);
+	});
+}
+
 
 export function formatDate(isoString) {
 	const date = new Date(isoString);

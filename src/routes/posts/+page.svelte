@@ -1,6 +1,5 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { navigating } from '$app/stores';
 	import { page } from '$app/state';
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
@@ -9,152 +8,108 @@
 	import FilterDialog from '$lib/components/FilterDialog.svelte';
 	import SwipeableCard from '$lib/components/SwipeableCard.svelte';
 	import { SIDEBAR_POSTS_COUNT, fetchPaginatedPosts, BSKY_HANDLE } from '$lib/features/bsky.js';
-	import gsap from 'gsap';
-	import {
-		formatDisplayDate,
-		convertToISO
-	} from '$lib/features/postFilters.js';
-
-	let { data } = $props();
+	import { convertToISO } from '$lib/features/postFilters.js';
 
 	let posts = $state([]);
 	let selectedPost = $state(null);
-	let totalCount = $state(0);
+	let totalCount = $state(null);
 	let currentPage = $state(0);
 	let bskyError = $state('');
 	let isLoading = $state(true);
 	let postId = $state('');
 	let swipeableCardRef = $state(null);
 	let swipeDirection = $state('left');
-
-	let filters = $state({
-		fromDate: '',
-		toDate: '',
-		sortOrder: 'latest'
-	});
-
-	let tempFilters = $state({
-		fromDate: '',
-		toDate: '',
-		sortOrder: 'latest'
-	});
-
+	let filters = $state({ fromDate: '', toDate: '', sortOrder: 'latest' });
 	let showFilterDialog = $state(false);
 	let isMobileSidebarOpen = $state(false);
-
-	let view = $derived(data.view ?? 'list');
-
-	async function fetchPosts(page, newFilters) {
-		isLoading = true;
-		bskyError = '';
-
-		try {
-			const result = await fetchPaginatedPosts(BSKY_HANDLE, newFilters, page, fetch);
-			posts = result.posts;
-			totalCount = result.totalCount;
-			currentPage = result.currentPage;
-			filters = newFilters;
-		} catch (e) {
-			bskyError = `Failed to load posts: ${e instanceof Error ? e.message : String(e)}`;
-			posts = [];
-			totalCount = 0;
-		} finally {
-			isLoading = false;
-		}
-	}
-
-	$effect(() => {
-		if (view === 'list') {
-			currentPage = data.initialPage ?? 0;
-			filters.fromDate = data.initialFilters?.fromDate ?? '';
-			filters.toDate = data.initialFilters?.toDate ?? '';
-			filters.sortOrder = data.initialFilters?.sortOrder ?? 'latest';
-		} else {
-			posts = data.posts ?? [];
-			selectedPost = data.selectedPost ?? null;
-			currentPage = data.currentPage ?? 0;
-			totalCount = data.totalCount ?? 0;
-			bskyError = data.error ?? '';
-			postId = data.postId ?? '';
-			if (data.filters) {
-				filters.fromDate = data.filters.fromDate;
-				filters.toDate = data.filters.toDate;
-				filters.sortOrder = data.filters.sortOrder;
-			}
-			isLoading = false;
-		}
-	});
-
+	let isMobile = $state(false);
+	let view = $derived(page.url.searchParams.has('post') ? 'single' : 'list');
 	let currentPageUrl = $derived(page.url);
+	let requestVersion = 0;
 
 	$effect(() => {
-		if (view === 'list') {
-			const url = currentPageUrl;
-			const page = parseInt(url.searchParams.get('page') || '0', 10);
-			const fromDate = url.searchParams.get('from') ?? '';
-			const toDate = url.searchParams.get('to') ?? '';
-			const sortOrder = url.searchParams.get('sort') ?? 'latest';
-
-			fetchPosts(page, { fromDate, toDate, sortOrder });
-		}
+		const url = currentPageUrl;
+		const version = ++requestVersion;
+		const id = url.searchParams.get('post') ?? '';
+		const requestedPage = Math.max(0, Number.parseInt(url.searchParams.get('page') ?? '0', 10) || 0);
+		const nextFilters = {
+			fromDate: url.searchParams.get('from') ?? '',
+			toDate: url.searchParams.get('to') ?? '',
+			sortOrder: url.searchParams.get('sort') ?? 'latest'
+		};
+		postId = id;
+		
+		currentPage = requestedPage;
+		filters = nextFilters;
+		posts = [];
+		selectedPost = null;
+		totalCount = null;
+		bskyError = '';
+		isLoading = true;
+		const update = (result) => {
+			if (version !== requestVersion) return;
+			posts = result.posts;
+			totalCount = result.complete ? result.totalCount : null;
+			currentPage = result.currentPage;
+			if (result.selectedPost) selectedPost = result.selectedPost;
+			if (result.ready) isLoading = false;
+		};
+		fetchPaginatedPosts(BSKY_HANDLE, nextFilters, requestedPage, fetch, {
+			postId: id || undefined,
+			onProgress: update
+		}).then((result) => {
+			if (version !== requestVersion) return;
+			update(result);
+			if (id && !result.selectedPost) bskyError = 'Post not found';
+		}).catch((e) => {
+			if (version !== requestVersion) return;
+			bskyError = `Failed to load posts: ${e instanceof Error ? e.message : String(e)}`;
+			isLoading = false;
+		});
+		return () => {
+			if (version === requestVersion) requestVersion++;
+		};
 	});
 
-	let totalPages = $derived.by(() => Math.ceil(totalCount / SIDEBAR_POSTS_COUNT));
-	let hasPrev = $derived.by(() => currentPage > 0);
-	let hasNext = $derived.by(() => (currentPage + 1) * SIDEBAR_POSTS_COUNT < totalCount);
-	let listSelectedPost = $derived.by(() => posts[0] ?? null);
+	let totalPages = $derived(totalCount === null ? null : Math.ceil(totalCount / SIDEBAR_POSTS_COUNT));
+	let hasPrev = $derived(currentPage > 0);
+	let hasNext = $derived(!isLoading && !bskyError && (totalCount === null || (currentPage + 1) * SIDEBAR_POSTS_COUNT < totalCount));
+	let listSelectedPost = $derived(posts[0] ?? null);
 
 	function selectPost(index, closeSidebar = true) {
 		const post = posts[index];
 		if (!post) return;
-		const uri = post.post.uri;
-		const match = uri.match(/app\.bsky\.feed\.post\/([a-z0-9]+)/);
-		if (match) {
-			const params = new URLSearchParams();
-			params.set('post', match[1]);
-			params.set('page', currentPage.toString());
-			if (filters.fromDate) params.set('from', filters.fromDate);
-			if (filters.toDate) params.set('to', filters.toDate);
-			if (filters.sortOrder !== 'latest') params.set('sort', filters.sortOrder);
-			const queryString = params.toString();
-			goto(queryString ? `/posts?${queryString}` : `/posts?post=${match[1]}`);
-			if (closeSidebar && window.innerWidth <= 1024) {
-				toggleSidebar();
-				window.scrollTo({ top: 0, behavior: 'smooth' });
-			}
+		const match = post.post.uri.match(/app\.bsky\.feed\.post\/([a-z0-9]+)/);
+		if (!match) return;
+		const params = new URLSearchParams();
+		params.set('post', match[1]);
+		params.set('page', currentPage.toString());
+		if (filters.fromDate) params.set('from', filters.fromDate);
+		if (filters.toDate) params.set('to', filters.toDate);
+		if (filters.sortOrder !== 'latest') params.set('sort', filters.sortOrder);
+		goto(`/posts?${params.toString()}`);
+		if (closeSidebar && window.innerWidth <= 1024) {
+			toggleSidebar();
+			window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
 	}
 
 	function prevPage() {
-		if (hasPrev) {
-			const newPage = currentPage - 1;
-			const params = new URLSearchParams();
-			if (view === 'single') {
-				params.set('post', postId);
-			}
-			params.set('page', newPage.toString());
-			if (filters.fromDate) params.set('from', filters.fromDate);
-			if (filters.toDate) params.set('to', filters.toDate);
-			if (filters.sortOrder !== 'latest') params.set('sort', filters.sortOrder);
-			const queryString = params.toString();
-			goto(queryString ? `/posts?${queryString}` : '/posts', { keepFocus: true });
-		}
+		if (hasPrev) navigatePage(currentPage - 1);
 	}
 
 	function nextPage() {
-		if (hasNext) {
-			const newPage = currentPage + 1;
-			const params = new URLSearchParams();
-			if (view === 'single') {
-				params.set('post', postId);
-			}
-			params.set('page', newPage.toString());
-			if (filters.fromDate) params.set('from', filters.fromDate);
-			if (filters.toDate) params.set('to', filters.toDate);
-			if (filters.sortOrder !== 'latest') params.set('sort', filters.sortOrder);
-			const queryString = params.toString();
-			goto(queryString ? `/posts?${queryString}` : '/posts', { keepFocus: true });
-		}
+		if (hasNext) navigatePage(currentPage + 1);
+	}
+
+	function navigatePage(nextPage) {
+		const params = new URLSearchParams();
+		if (view === 'single') params.set('post', postId);
+		params.set('page', nextPage.toString());
+		if (filters.fromDate) params.set('from', filters.fromDate);
+		if (filters.toDate) params.set('to', filters.toDate);
+		if (filters.sortOrder !== 'latest') params.set('sort', filters.sortOrder);
+		goto(`/posts?${params.toString()}`, { keepFocus: true });
 	}
 
 	function getPostId(uri) {
@@ -167,42 +122,26 @@
 	}
 
 	function handleFilterReset() {
-		tempFilters.fromDate = '';
-		tempFilters.toDate = '';
-		tempFilters.sortOrder = 'latest';
 		showFilterDialog = false;
-		if (view === 'single') {
-			const params = new URLSearchParams();
-			params.set('post', postId);
-			goto(`/posts?${params.toString()}`);
-		} else {
-			goto('/posts');
-		}
+		const params = new URLSearchParams();
+		if (view === 'single') params.set('post', postId);
+		goto(params.size ? `/posts?${params.toString()}` : '/posts');
 	}
 
 	function openFilterDialog() {
-		tempFilters.fromDate = filters.fromDate ? formatDisplayDate(filters.fromDate) : '';
-		tempFilters.toDate = filters.toDate ? formatDisplayDate(filters.toDate) : '';
-		tempFilters.sortOrder = filters.sortOrder;
 		showFilterDialog = true;
 	}
 
 	function handleFilterApply(newFilters) {
 		const fromDate = newFilters.fromDate ? convertToISO(newFilters.fromDate) : '';
 		const toDate = newFilters.toDate ? convertToISO(newFilters.toDate) : '';
-		const sortOrder = newFilters.sortOrder;
-
 		showFilterDialog = false;
-
 		const params = new URLSearchParams();
-		if (view === 'single') {
-			params.set('post', postId);
-		}
+		if (view === 'single') params.set('post', postId);
 		if (fromDate) params.set('from', fromDate);
 		if (toDate) params.set('to', toDate);
-		if (sortOrder !== 'latest') params.set('sort', sortOrder);
-		const queryString = params.toString();
-		goto(queryString ? `/posts?${queryString}` : '/posts');
+		if (newFilters.sortOrder !== 'latest') params.set('sort', newFilters.sortOrder);
+		goto(params.size ? `/posts?${params.toString()}` : '/posts');
 	}
 
 	function handleFilterClose() {
@@ -214,60 +153,30 @@
 		document.body.style.overflow = isMobileSidebarOpen ? 'hidden' : '';
 	}
 
-	$effect(() => {
-		if (filters.fromDate) {
-			tempFilters.fromDate = formatDisplayDate(filters.fromDate);
-		} else {
-			tempFilters.fromDate = '';
-		}
-		if (filters.toDate) {
-			tempFilters.toDate = formatDisplayDate(filters.toDate);
-		} else {
-			tempFilters.toDate = '';
-		}
-		tempFilters.sortOrder = filters.sortOrder;
-	});
-
-	let displayPost = $derived.by(() => view === 'single' ? selectedPost : listSelectedPost);
-	let currentPostIndex = $derived.by(() => {
-		if (view !== 'single' || !postId) return -1;
-		return posts.findIndex(p => getPostId(p.post.uri) === postId);
-	});
-
-	let isMobile = $state(false);
+	let displayPost = $derived(view === 'single' ? selectedPost : listSelectedPost);
+	let currentPostIndex = $derived(view !== 'single' || !postId ? -1 : posts.findIndex((p) => getPostId(p.post.uri) === postId));
 
 	$effect(() => {
-		const updateMobile = () => {
-			isMobile = window.innerWidth <= 1024;
-		};
-
+		const updateMobile = () => { isMobile = window.innerWidth <= 1024; };
 		updateMobile();
 		window.addEventListener('resize', updateMobile);
-
 		return () => window.removeEventListener('resize', updateMobile);
 	});
 
 	function handleSwipeNext() {
 		swipeDirection = 'left';
-		if (currentPostIndex < posts.length - 1) {
-			selectPost(currentPostIndex + 1, false);
-		} else if (hasNext) {
-			nextPage();
-		} else if (swipeableCardRef) {
-			swipeableCardRef.shake();
-		}
+		if (currentPostIndex < posts.length - 1) selectPost(currentPostIndex + 1, false);
+		else if (hasNext) nextPage();
+		else if (swipeableCardRef) swipeableCardRef.shake();
 	}
 
 	function handleSwipePrev() {
 		swipeDirection = 'right';
-		if (currentPostIndex > 0) {
-			selectPost(currentPostIndex - 1, false);
-		} else if (hasPrev) {
-			prevPage();
-		} else if (swipeableCardRef) {
-			swipeableCardRef.shake();
-		}
+		if (currentPostIndex > 0) selectPost(currentPostIndex - 1, false);
+		else if (hasPrev) prevPage();
+		else if (swipeableCardRef) swipeableCardRef.shake();
 	}
+
 </script>
 
 <svelte:head>
@@ -298,7 +207,7 @@
 			<div id="bsky-posts-feed">
 				{#if bskyError}
 					<div class="error-message">{bskyError}</div>
-				{:else if isLoading || $navigating}
+				{:else if isLoading}
 					<div class="skeleton-main">
 						<div class="skeleton-main-header">
 							<div class="skeleton-main-title"></div>
@@ -316,15 +225,17 @@
 						</div>
 					</div>
 				{:else if displayPost}
-					<SwipeableCard
-						bind:this={swipeableCardRef}
-						onSwipeNext={handleSwipeNext}
-						onSwipePrev={handleSwipePrev}
-						disabled={!isMobile}
-						entryDirection={swipeDirection}
-					>
-						<PostMain postData={displayPost} />
-					</SwipeableCard>
+					{#key `${view}:${currentPage}:${displayPost.post.uri}`}
+						<SwipeableCard
+							bind:this={swipeableCardRef}
+							onSwipeNext={handleSwipeNext}
+							onSwipePrev={handleSwipePrev}
+							disabled={!isMobile}
+							entryDirection={swipeDirection}
+						>
+							<PostMain postData={displayPost} />
+						</SwipeableCard>
+					{/key}
 				{:else if view === 'single'}
 					<div class="error-message">Post not found</div>
 				{/if}
@@ -350,7 +261,7 @@
 			<div id="bsky-posts-sidebar">
 				{#if bskyError}
 					<div class="error-message">{bskyError}</div>
-				{:else if isLoading || $navigating}
+				{:else if isLoading}
 					<div class="skeleton-container">
 						{#each Array(SIDEBAR_POSTS_COUNT) as _}
 							<div class="skeleton-post">
@@ -383,13 +294,15 @@
 			</div>
 			<div class="pagination-controls">
 				<button onclick={prevPage} disabled={!hasPrev}>Prev</button>
-				{#if totalCount > 0}
+				{#if totalCount !== null && totalCount > 0}
 					<span id="page-info">{currentPage + 1} / {totalPages}</span>
+				{:else if totalCount === null && !bskyError}
+					<span id="page-info" aria-live="polite">{currentPage + 1} / loading...</span>
 				{/if}
 				<button onclick={nextPage} disabled={!hasNext}>Next</button>
 				{#if hasActiveFilters()}
-					<div class="filter-info">
-						Showing {totalCount} posts
+					<div class="filter-info" aria-live="polite">
+						{totalCount === null ? 'Loading filtered count…' : `Showing ${totalCount} posts`}
 					</div>
 				{/if}
 			</div>

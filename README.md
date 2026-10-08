@@ -13,7 +13,20 @@ bun run build    # build static site to build/
 bun run preview  # preview built site
 ```
 
-The site is deployed to [Nekoweb](https://nekoweb.org) via GitHub Actions on push to `main`.
+## Posts
+
+The first usable page renders after its Bluesky batch arrives. The remaining archive loads in the background, and pagination shows `loading...` until the page total is known. Pages, filters and individual-post links share the same five-minute author-feed cache.
+
+Date filters include both boundary days. Latest retains newest-first order, and Top retains its existing oldest-first order. The sidebar has five posts per page and excludes reposts. The archive retains its existing limit of 750 raw feed entries.
+
+```bash
+bun test
+bunx svelte-check --threshold warning
+```
+
+## Publishing
+
+The site is published at [fairfruit.tv](https://fairfruit.tv) and [Nekoweb](https://fairfruit.nekoweb.org).
 
 ## Credits
 

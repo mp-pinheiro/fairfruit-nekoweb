@@ -61,10 +61,10 @@ export function handleDateInput(event, field, tempFilters) {
 	let formatted = '';
 	if (value.length > 0) {
 		formatted = value.slice(0, 2);
-		if (value.length >= 4) {
+		if (value.length > 2) {
 			formatted += '/' + value.slice(2, 4);
 		}
-		if (value.length >= 6) {
+		if (value.length > 4) {
 			formatted += '/' + value.slice(4, 8);
 		}
 	}

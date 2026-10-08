@@ -1,5 +1,5 @@
 <script>
-	import { handleDateInput } from '$lib/features/postFilters.js';
+	import { handleDateInput, formatDisplayDate } from '$lib/features/postFilters.js';
 
 	let {
 		show = false,
@@ -17,8 +17,8 @@
 
 	$effect(() => {
 		if (show) {
-			tempFilters.fromDate = filters.fromDate ? filters.fromDate : '';
-			tempFilters.toDate = filters.toDate ? filters.toDate : '';
+			tempFilters.fromDate = filters.fromDate ? formatDisplayDate(filters.fromDate) : '';
+			tempFilters.toDate = filters.toDate ? formatDisplayDate(filters.toDate) : '';
 			tempFilters.sortOrder = filters.sortOrder || 'latest';
 		}
 	});
@@ -44,10 +44,10 @@
 <svelte:window onkeydown={(e) => show && e.key === 'Escape' && onClose()} />
 
 {#if show}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<div
 		class="filter-dialog-overlay"
 		onclick={handleClose}
+		onkeydown={(e) => e.key === 'Escape' && onClose()}
 		role="dialog"
 		tabindex="-1"
 		aria-modal="true"
