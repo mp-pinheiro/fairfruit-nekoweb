@@ -21,7 +21,7 @@ Date filters include both boundary days. Latest retains newest-first order, and 
 
 ```bash
 bun test
-bunx svelte-check --threshold warning
+bun run check
 ```
 
 ## Publishing

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && cp build/not_found.html build/404.html",
+    "check": "svelte-kit sync && bunx svelte-check --threshold warning",
     "preview": "vite preview"
   },
   "repository": {
